@@ -35,3 +35,10 @@ This project is a NHL Stenden student project for the course 3.3 **Algorithmic P
 
 ## GUI Library
 - https://vuejs.org/
+
+## How to Run
+1. Clone the repository
+2. configure  `src/main/resources/application.properties` with your database credentials.
+3. Run `./gradlew bootRun`
+4. Open `http://localhost:8080` in your browser
+
