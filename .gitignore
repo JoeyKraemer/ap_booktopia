@@ -31,8 +31,8 @@ replay_pid*
 /src/main/resources/application.properties
 
 # Build directories
-/build/
-/.gradle/
+backend/build/
+backend/.gradle/
 
 # Ignore files based on https://help.github.com/articles/ignoring-files/
 
