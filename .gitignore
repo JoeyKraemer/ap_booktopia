@@ -33,6 +33,7 @@ replay_pid*
 # Build directories
 backend/build/
 backend/.gradle/
+backend/gradle/
 
 # Ignore files based on https://help.github.com/articles/ignoring-files/
 

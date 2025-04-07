@@ -2,36 +2,36 @@ package com.nhlstenden.booktopia.btree;
 
 import org.json.JSONObject;
 
-public class BTreeNode {
+public class BTreeNode<K extends Comparable<K>, V> {
     private int t; // Minimum of keys/degree
-    private String[] keys;
-    private BTreeNode[] children;
+    private K[] keys;
+    private BTreeNode<K, V>[] children;
     private JSONObject values;
-    private int n; // number of keys/degrees
+    private int n; // Number of keys/degrees
     private boolean isLeaf;
 
     public BTreeNode(int t) {
         this.t = t;
-        this.keys = new String[2 * t - 1];
+        this.keys = (K[]) new Comparable[2 * t - 1]; // Cast to K[]
         this.values = new JSONObject();
         this.children = new BTreeNode[2 * t];
         this.n = 0;
         isLeaf = true;
     }
 
-    protected String[] getKeys() {
+    protected K[] getKeys() {
         return keys;
     }
 
-    protected void setKeys(String[] keys) {
+    protected void setKeys(K[] keys) {
         this.keys = keys;
     }
 
-    protected BTreeNode[] getChildren() {
+    protected BTreeNode<K, V>[] getChildren() {
         return children;
     }
 
-    protected void setChildren(BTreeNode[] children) {
+    protected void setChildren(BTreeNode<K, V>[] children) {
         this.children = children;
     }
 
@@ -59,7 +59,7 @@ public class BTreeNode {
         isLeaf = leaf;
     }
 
-    protected BTreeNode search(String key) {
+    protected BTreeNode<K, V> search(K key) {
         int i = 0;
         while (i < n && key.compareTo(keys[i]) > 0) {
             i++;
@@ -75,7 +75,8 @@ public class BTreeNode {
 
         return children[i].search(key);
     }
-    protected void insertNonFull(String key, JSONObject value) {
+
+    protected void insertNonFull(K key, V value) {
         int i = n - 1;
         if (isLeaf) {
             while (i >= 0 && keys[i].compareTo(key) > 0) {
@@ -83,7 +84,7 @@ public class BTreeNode {
                 i--;
             }
             keys[i + 1] = key;
-            values.put(key, value);
+            values.put(key.toString(), value);
             n = n + 1;
         } else {
             while (i >= 0 && keys[i].compareTo(key) > 0) {
@@ -99,8 +100,8 @@ public class BTreeNode {
         }
     }
 
-    protected void splitChild(int i, BTreeNode y) {
-        BTreeNode z = new BTreeNode(y.t);
+    protected void splitChild(int i, BTreeNode<K, V> y) {
+        BTreeNode<K, V> z = new BTreeNode<>(y.t);
         z.setN(t - 1);
         z.setLeaf(y.isLeaf());
 
@@ -119,7 +120,7 @@ public class BTreeNode {
         y.setN(t - 1);
 
         if (n + 1 >= children.length) {
-            BTreeNode[] newChildren = new BTreeNode[children.length + 1];
+            BTreeNode<K, V>[] newChildren = new BTreeNode[children.length + 1];
             System.arraycopy(children, 0, newChildren, 0, children.length);
             children = newChildren;
         }
@@ -138,7 +139,7 @@ public class BTreeNode {
         n++;
     }
 
-    protected void delete(String key) {
+    protected void delete(K key) {
         int idx = findKey(key);
 
         if (idx < n && keys[idx].equals(key)) {
@@ -179,7 +180,7 @@ public class BTreeNode {
         }
     }
 
-    private int findKey(String key) {
+    private int findKey(K key) {
         int idx = 0;
         while (idx < n && keys[idx].compareTo(key) < 0) {
             idx++;
@@ -195,14 +196,14 @@ public class BTreeNode {
     }
 
     private void removeFromNonLeaf(int idx) {
-        String key = keys[idx];
+        K key = keys[idx];
 
         if (children[idx].getN() >= t) {
-            String pred = getPredecessor(idx);
+            K pred = getPredecessor(idx);
             keys[idx] = pred;
             children[idx].delete(pred);
         } else if (children[idx + 1].getN() >= t) {
-            String succ = getSuccessor(idx);
+            K succ = getSuccessor(idx);
             keys[idx] = succ;
             children[idx + 1].delete(succ);
         } else {
@@ -211,16 +212,16 @@ public class BTreeNode {
         }
     }
 
-    private String getPredecessor(int idx) {
-        BTreeNode cur = children[idx];
+    private K getPredecessor(int idx) {
+        BTreeNode<K, V> cur = children[idx];
         while (!cur.isLeaf()) {
             cur = cur.getChildren()[cur.getN()];
         }
         return cur.getKeys()[cur.getN() - 1];
     }
 
-    private String getSuccessor(int idx) {
-        BTreeNode cur = children[idx + 1];
+    private K getSuccessor(int idx) {
+        BTreeNode<K, V> cur = children[idx + 1];
         while (!cur.isLeaf()) {
             cur = cur.getChildren()[0];
         }
@@ -242,8 +243,8 @@ public class BTreeNode {
     }
 
     private void borrowFromPrev(int idx) {
-        BTreeNode child = children[idx];
-        BTreeNode sibling = children[idx - 1];
+        BTreeNode<K, V> child = children[idx];
+        BTreeNode<K, V> sibling = children[idx - 1];
 
         for (int i = child.getN() - 1; i >= 0; --i) {
             child.getKeys()[i + 1] = child.getKeys()[i];
@@ -268,8 +269,8 @@ public class BTreeNode {
     }
 
     private void borrowFromNext(int idx) {
-        BTreeNode child = children[idx];
-        BTreeNode sibling = children[idx + 1];
+        BTreeNode<K, V> child = children[idx];
+        BTreeNode<K, V> sibling = children[idx + 1];
 
         child.getKeys()[child.getN()] = keys[idx];
 
@@ -294,18 +295,18 @@ public class BTreeNode {
     }
 
     private void merge(int idx) {
-        BTreeNode child = children[idx];
-        BTreeNode sibling = children[idx + 1];
+        BTreeNode<K, V> child = children[idx];
+        BTreeNode<K, V> sibling = children[idx + 1];
 
         child.getKeys()[t - 1] = keys[idx];
 
-        for (int i = 0; i < sibling.getN(); ++i) {
-            child.getKeys()[i + t] = sibling.getKeys()[i];
+        for (int j = 0; j < sibling.getN(); ++j) {
+            child.getKeys()[j + t] = sibling.getKeys()[j];
         }
 
         if (!child.isLeaf()) {
-            for (int i = 0; i <= sibling.getN(); ++i) {
-                child.getChildren()[i + t] = sibling.getChildren()[i];
+            for (int j = 0; j <= sibling.getN(); ++j) {
+                child.getChildren()[j + t] = sibling.getChildren()[j];
             }
         }
 
