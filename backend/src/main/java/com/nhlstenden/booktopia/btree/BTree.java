@@ -1,5 +1,7 @@
 package com.nhlstenden.booktopia.btree;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONObject;
 
 public class BTree<K extends Comparable<K>, V> {
@@ -17,6 +19,14 @@ public class BTree<K extends Comparable<K>, V> {
 
     public BTreeNode<K, V> search(K key) {
         return (root == null) ? null : root.search(key);
+    }
+
+    public List<K> getSortedKeys() {
+        List<K> sortedKeys = new ArrayList<>();
+        if (root != null) {
+            root.inOrderTraversal(sortedKeys);
+        }
+        return sortedKeys;
     }
 
     public void insert(K key, V value) {
@@ -73,11 +83,11 @@ public class BTree<K extends Comparable<K>, V> {
 
         // Insert keys with values
         tree.insert("B", "test_B");
-        tree.insert("A", "test_A");
-        tree.insert("C", "test_C");
+        tree.insert("F", "test_A");
+        tree.insert("E", "test_C");
         tree.insert("D", "test_D");
-        tree.insert("E", "test_E");
-        tree.insert("F", "test_F");
+        tree.insert("C", "test_E");
+        tree.insert("A", "test_F");
         tree.insert("G", "test_G");
 
         System.out.println("Initial BTree:");
@@ -121,5 +131,21 @@ public class BTree<K extends Comparable<K>, V> {
         System.out.println("\nDeleting key D");
         tree.delete("D");
         tree.printBTree();
+
+        // Sorting example
+        System.out.println("\nSorted keys in the BTree:");
+        List<String> sortedKeys = tree.getSortedKeys();
+        for (String key : sortedKeys) {
+            System.out.println(key);
+        }
+
+        // Search example for key "E"
+        System.out.println("\nSearching for key E:");
+        BTreeNode<String, String> nodeE = tree.search("E");
+        if (nodeE != null) {
+            System.out.println("Found E: " + nodeE.getValues().toString());
+        } else {
+            System.out.println("E not found");
+        }
     }
 }

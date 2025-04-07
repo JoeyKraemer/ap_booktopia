@@ -1,5 +1,6 @@
 package com.nhlstenden.booktopia.btree;
 
+import java.util.List;
 import org.json.JSONObject;
 
 public class BTreeNode<K extends Comparable<K>, V> {
@@ -320,5 +321,22 @@ public class BTreeNode<K extends Comparable<K>, V> {
 
         child.setN(child.getN() + sibling.getN() + 1);
         n--;
+    }
+
+    protected void inOrderTraversal(List<K> sortedKeys) {
+        int i;
+        for (i = 0; i < n; i++) {
+            // If this is not a leaf, traverse the child before this key
+            if (!isLeaf) {
+                children[i].inOrderTraversal(sortedKeys);
+            }
+            // Add the key to the sorted list
+            sortedKeys.add(keys[i]);
+        }
+
+        // Traverse the last child
+        if (!isLeaf) {
+            children[i].inOrderTraversal(sortedKeys);
+        }
     }
 }
