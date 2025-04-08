@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import SearchBar from "@/components/SearchBar";
-import SystemMetrics from "@/components/SystemMetrics";
-import SortBy from "@/components/SortBy";
-import ItemCard from "@/components/ItemCard";
-import ButtonGroup from "@/components/ButtonGroup";
+import SearchBar from "../pages/components/SearchBar";
+import SystemMetrics from "../pages/components/SystemMetrics";
+import SortBy from "../pages/components/SortBy";
+import ItemCard from "../pages/components/ItemCard";
+import ButtonGroup from "../pages/components/ButtonGroup";
 
 export default function Home() {
     // Example data for items (can be books, movies, songs, etc.)
@@ -69,42 +69,52 @@ export default function Home() {
     };
 
     return (
-        <div className="p-6">
-            {/* System Metrics */}
-            <SystemMetrics
-                dataStructure="Array"
-                lastAlgorithm={lastAlgorithm}
-                speed={speed}
-            />
+        <div className="container">
+            <div className="bix-box">
+                <div className="top">
+                    <div className="search-top">
+                        <div className="search-bar">
+                            <SearchBar onSearch={handleSearch}/>
+                        </div>
+                        <div className="sort-by">
+                            <h3>Sort By</h3>
+                            <SortBy onSortChange={handleSortChange}/>
+                        </div>
+                    </div>
+                    <div className="metrics-box">
+                        <SystemMetrics
+                            dataStructure="Array"
+                            lastAlgorithm={lastAlgorithm}
+                            speed={speed}
+                        />
+                    </div>
+                </div>
 
-            {/* Search Bar */}
-            <SearchBar onSearch={handleSearch}/>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
+                    {sortedItems.map((item) => (
+                        <div className="item-card">
+                        <ItemCard
+                            key={item.title}
+                            title={item.title}
+                            value1={item.value1}
+                            value2={item.value2}
+                            value3={item.value3}
+                            value4={item.value4}
+                            value5={item.value5}
+                        />
+                    </div>
+                    ))}
+                </div>
 
-            {/* Sort By */}
-            <SortBy onSortChange={handleSortChange}/>
-
-            {/* Button Group */}
-            <ButtonGroup
-                onAdd={handleAdd}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
-                onConvert={handleConvert}
-                onUpload={handleUpload}
-            />
-
-            {/* Display the sorted and filtered Item Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
-                {sortedItems.map((item) => (
-                    <ItemCard
-                        key={item.title}
-                        title={item.title}
-                        value1={item.value1}
-                        value2={item.value2}
-                        value3={item.value3}
-                        value4={item.value4}
-                        value5={item.value5}
+                <div className="button-group">
+                    <ButtonGroup
+                        onAdd={handleAdd}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
+                        onConvert={handleConvert}
+                        onUpload={handleUpload}
                     />
-                ))}
+                </div>
             </div>
         </div>
     );
