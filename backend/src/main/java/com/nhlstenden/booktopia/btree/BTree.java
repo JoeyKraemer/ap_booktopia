@@ -144,7 +144,11 @@ public class BTree<K extends Comparable<K>, V> {
 
     public void printBTree() {
         if (root != null) {
-            root.printInOrder();
+            List<K> sortedKeys = new ArrayList<>();
+            root.inOrderTraversal(sortedKeys);
+            for (K key : sortedKeys) {
+                System.out.print(key + " ");
+            }
         }
         System.out.println();
     }
