@@ -370,6 +370,27 @@ public class TreeConverterService<K extends Comparable<K>, V> {
                 break;
         }
     }
+
+    /**
+     * Deletes a key-value pair from the current active tree structure.
+     * 
+     * @param key The key to delete
+     */
+    public void delete(K key) {
+        switch (currentTreeType) {
+            case "AVL":
+                avlTree.delete(key);
+                break;
+                
+            case "BST":
+                bst.delete(key);
+                break;
+                
+            case "BTree":
+                bTree.delete(key);
+                break;
+        }
+    }
     
     /**
      * Searches for a value associated with the given key in the current active tree structure.
