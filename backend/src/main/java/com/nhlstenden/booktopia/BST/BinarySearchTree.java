@@ -1,6 +1,7 @@
 package com.nhlstenden.booktopia.BST;
 
 import java.util.Comparator;
+import java.util.List;
 import org.json.JSONObject;
 
 public class BinarySearchTree<T> {
@@ -118,6 +119,42 @@ public class BinarySearchTree<T> {
             inorderRec(node.left);
             System.out.println("{ \"key\": " + node.key + ", \"value\": " + node.value.toString() + " }");
             inorderRec(node.right);
+        }
+    }
+    
+    /**
+     * Performs an inorder traversal and collects all keys in the tree.
+     * 
+     * @param keys A list to which all keys will be added in sorted order
+     */
+    public void inOrderTraversal(List<T> keys) {
+        inOrderTraversalRec(root, keys);
+    }
+    
+    private void inOrderTraversalRec(Node node, List<T> keys) {
+        if (node != null) {
+            inOrderTraversalRec(node.left, keys);
+            keys.add(node.key);
+            inOrderTraversalRec(node.right, keys);
+        }
+    }
+    
+    /**
+     * Performs an inorder traversal and collects both keys and values in the tree.
+     * 
+     * @param keys A list to which all keys will be added in sorted order
+     * @param values A list to which all values will be added in the same order as the keys
+     */
+    public void inOrderTraversalWithValues(List<T> keys, List<JSONObject> values) {
+        inOrderTraversalWithValuesRec(root, keys, values);
+    }
+    
+    private void inOrderTraversalWithValuesRec(Node node, List<T> keys, List<JSONObject> values) {
+        if (node != null) {
+            inOrderTraversalWithValuesRec(node.left, keys, values);
+            keys.add(node.key);
+            values.add(node.value);
+            inOrderTraversalWithValuesRec(node.right, keys, values);
         }
     }
 }

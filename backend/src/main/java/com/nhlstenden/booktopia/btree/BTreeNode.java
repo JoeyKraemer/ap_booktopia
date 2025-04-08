@@ -36,7 +36,7 @@ public class BTreeNode<K extends Comparable<K>, V> {
         this.children = children;
     }
 
-    protected JSONObject getValues() {
+    public JSONObject getValues() {
         return values;
     }
 
