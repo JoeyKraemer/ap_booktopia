@@ -1,32 +1,41 @@
 package com.nhlstenden.booktopia.AVL;
 
+import org.json.JSONObject;
+
 public class AVLTree<T extends Comparable<T>> {
-    private Node<T> root;
+    private class Node {
+        T key;
+        JSONObject value;
+        int height;
+        Node left, right;
+
+        Node(T key, JSONObject value) {
+            this.key = key;
+            this.value = value;
+            height = 1;
+        }
+    }
+
+    private Node root;
 
     public AVLTree() {
-        this.root = null;
+        root = null;
     }
 
-    // Returns the height of a given node
-    private int getHeight(Node<T> node) {
-        if (node == null) {
-            return 0;
-        }
-        return node.height;
+    // Returns the height of a node.
+    private int getHeight(Node node) {
+        return node == null ? 0 : node.height;
     }
 
-    // Returns the balance factor of a node
-    private int getBalance(Node<T> node) {
-        if (node == null) {
-            return 0;
-        }
-        return getHeight(node.left) - getHeight(node.right);
+    // Returns the balance factor of a node.
+    private int getBalance(Node node) {
+        return node == null ? 0 : getHeight(node.left) - getHeight(node.right);
     }
 
     // Right rotation
-    private Node<T> rotateRight(Node<T> node) {
-        Node<T> temp = node.left;
-        Node<T> temp2 = temp.right;
+    private Node rotateRight(Node node) {
+        Node temp = node.left;
+        Node temp2 = temp.right;
 
         // Rotate to the right
         temp.right = node;
@@ -39,9 +48,9 @@ public class AVLTree<T extends Comparable<T>> {
     }
 
     // Left rotation
-    private Node<T> rotateLeft(Node<T> node) {
-        Node<T> temp = node.right;
-        Node<T> temp2 = temp.left;
+    private Node rotateLeft(Node node) {
+        Node temp = node.right;
+        Node temp2 = temp.left;
 
         // Rotate to the left
         temp.left = node;
@@ -53,117 +62,167 @@ public class AVLTree<T extends Comparable<T>> {
         return temp;
     }
 
-    private Node<T> leftRightRotation(Node<T> node) {
+    // Double rotation: left-right.
+    private Node leftRightRotation(Node node) {
         node.left = rotateLeft(node.left);
         return rotateRight(node);
     }
 
-    private Node<T> rightLeftRotation(Node<T> node) {
+    // Double rotation: right-left.
+    private Node rightLeftRotation(Node node) {
         node.right = rotateRight(node.right);
         return rotateLeft(node);
     }
 
-    private Node<T> rebalance(Node<T> node) {
+    // Rebalance the node if necessary.
+    private Node rebalance(Node node) {
         int balance = getBalance(node);
-
-        if (balance > 1) { // Left heavy
+        if (balance > 1) { // Left heavy.
             if (getBalance(node.left) < 0) {
                 return leftRightRotation(node);
             } else {
                 return rotateRight(node);
             }
         }
-
-        if (balance < -1) { // Right heavy
+        if (balance < -1) { // Right heavy.
             if (getBalance(node.right) > 0) {
                 return rightLeftRotation(node);
             } else {
                 return rotateLeft(node);
             }
         }
-        // Already balanced
-        return node;
+        return node; // Already balanced.
     }
 
-    public void insert (T key) {
-        root = insertRecursive(root, key);
+    // Insert method accepting both key and JSON value.
+    public void insert(T key, JSONObject value) {
+        root = insertRecursive(root, key, value);
     }
 
-    private Node<T> insertRecursive(Node<T> node, T key) {
+    private Node insertRecursive(Node node, T key, JSONObject value) {
         if (node == null) {
-            return new Node<T>(key);
+            return new Node(key, value);
         }
-
         if (key.compareTo(node.key) < 0) {
-            node.left = insertRecursive(node.left, key);
+            node.left = insertRecursive(node.left, key, value);
         } else if (key.compareTo(node.key) > 0) {
-            node.right = insertRecursive(node.right, key);
+            node.right = insertRecursive(node.right, key, value);
         } else {
+            // If the key already exists, update the value.
+            node.value = value;
             return node;
         }
-
-        // Update height
         node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-
-        // Rebalance tree
         return rebalance(node);
     }
 
+    // Search method returns the JSON value associated with the key.
+    public JSONObject search(T key) {
+        Node node = searchRecursive(root, key);
+        return node != null ? node.value : null;
+    }
+
+    private Node searchRecursive(Node node, T key) {
+        if (node == null) {
+            return null;
+        }
+        if (key.compareTo(node.key) == 0) {
+            return node;
+        } else if (key.compareTo(node.key) < 0) {
+            return searchRecursive(node.left, key);
+        } else {
+            return searchRecursive(node.right, key);
+        }
+    }
+
+    // Delete method removes a node by key.
     public void delete(T key) {
         root = deleteRec(root, key);
     }
 
-    // Recursive function to delete a key and balance the tree
-    private Node<T> deleteRec(Node<T> node, T key) {
+    private Node deleteRec(Node node, T key) {
         if (node == null) {
-            return null;
+            return node;
         }
-
         if (key.compareTo(node.key) < 0) {
             node.left = deleteRec(node.left, key);
         } else if (key.compareTo(node.key) > 0) {
             node.right = deleteRec(node.right, key);
         } else {
-            if (node.left == null) {
-                return node.right;
-            } else if (node.right == null) {
-                return node.left;
-            } else { // Node<T> with two children
-                Node<T> temp = minValueNode(node.right);
+            // Node with one or no child.
+            if (node.left == null || node.right == null) {
+                Node temp = node.left != null ? node.left : node.right;
+                node = (temp == null) ? null : temp;
+            } else {
+                // Node with two children: Get the inorder successor (smallest in the right subtree).
+                Node temp = minValueNode(node.right);
                 node.key = temp.key;
+                node.value = temp.value;
                 node.right = deleteRec(node.right, temp.key);
             }
         }
-
-        // Update height
+        if (node == null) {
+            return node;
+        }
         node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-
-        // Rebalance tree
         return rebalance(node);
     }
 
-    // Finds the node with the smallest key in a given subtree
-    private Node<T> minValueNode(Node<T> node) {
-        Node<T> current = node;
-        while (current.left != null) current = current.left;
+    // Helper to find the minimum value node in a subtree.
+    private Node minValueNode(Node node) {
+        Node current = node;
+        while (current.left != null) {
+            current = current.left;
+        }
         return current;
     }
 
-    // Public method to search for a key in the AVL tree
-    public boolean search(T key) {
-        return searchRecursive(root, key);
+    // Inorder traversal: prints nodes as JSON objects.
+    public void inorder() {
+        inorderRec(root);
     }
 
-    // Recursive function to search for a key
-    private boolean searchRecursive(Node<T> root, T key) {
-
-        if (root == null) return false;
-        if (key.compareTo(root.key) == 0) return true;
-
-        if (key.compareTo(root.key) < 0) {
-            return searchRecursive(root.left, key);
-        } else {
-            return searchRecursive(root.right, key);
+    private void inorderRec(Node node) {
+        if (node != null) {
+            inorderRec(node.left);
+            System.out.println("{ \"key\": " + node.key + ", \"value\": " + node.value.toString() + " }");
+            inorderRec(node.right);
+        }
+    }
+    
+    /**
+     * Performs an inorder traversal and collects all keys in the tree.
+     * 
+     * @param keys A list to which all keys will be added in sorted order
+     */
+    public void inOrderTraversal(java.util.List<T> keys) {
+        inOrderTraversalRec(root, keys);
+    }
+    
+    private void inOrderTraversalRec(Node node, java.util.List<T> keys) {
+        if (node != null) {
+            inOrderTraversalRec(node.left, keys);
+            keys.add(node.key);
+            inOrderTraversalRec(node.right, keys);
+        }
+    }
+    
+    /**
+     * Performs an inorder traversal and collects both keys and values in the tree.
+     * 
+     * @param keys A list to which all keys will be added in sorted order
+     * @param values A list to which all values will be added in the same order as the keys
+     */
+    public void inOrderTraversalWithValues(java.util.List<T> keys, java.util.List<JSONObject> values) {
+        inOrderTraversalWithValuesRec(root, keys, values);
+    }
+    
+    private void inOrderTraversalWithValuesRec(Node node, java.util.List<T> keys, java.util.List<JSONObject> values) {
+        if (node != null) {
+            inOrderTraversalWithValuesRec(node.left, keys, values);
+            keys.add(node.key);
+            values.add(node.value);
+            inOrderTraversalWithValuesRec(node.right, keys, values);
         }
     }
 }

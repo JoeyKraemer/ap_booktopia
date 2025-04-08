@@ -10,6 +10,5 @@ public class BooktopiaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BooktopiaApplication.class, args);
-		BTree.testRun();
 	}
 }

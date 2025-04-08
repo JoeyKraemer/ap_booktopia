@@ -17,8 +17,45 @@ public class BTree<K extends Comparable<K>, V> {
         return root;
     }
 
-    public BTreeNode<K, V> search(K key) {
-        return (root == null) ? null : root.search(key);
+    public BTreeNode<K, V> searchNode(K key) {
+        if (root == null) {
+            return null;
+        }
+        return root.search(key);
+    }
+
+    /**
+     * Searches for a value associated with the given key.
+     * 
+     * @param key The key to search for
+     * @return The value associated with the key, or null if the key is not found
+     */
+    public V search(K key) {
+        if (root == null) {
+            return null;
+        }
+        
+        BTreeNode<K, V> node = root.search(key);
+        if (node != null) {
+            JSONObject values = node.getValues();
+            if (values != null && values.has(key.toString())) {
+                try {
+                    // Get the value and ensure it's not null or JSONObject.NULL
+                    Object valueObj = values.get(key.toString());
+                    if (valueObj != null && valueObj != JSONObject.NULL) {
+                        return (V) valueObj;
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error retrieving value for key: " + key);
+                    e.printStackTrace();
+                }
+            }
+            
+            // If we get here, the key exists but has no value or the value is null
+            System.out.println("Key exists but has no value: " + key);
+        }
+        
+        return null;
     }
 
     public List<K> getSortedKeys() {
@@ -28,12 +65,46 @@ public class BTree<K extends Comparable<K>, V> {
         }
         return sortedKeys;
     }
+    
+    /**
+     * Gets all values stored in the tree as a list of JSONObjects
+     * @return List of JSONObjects containing all values
+     */
+    public List<JSONObject> getAllValues() {
+        List<JSONObject> allValues = new ArrayList<>();
+        if (root != null) {
+            root.getAllValues(allValues);
+        }
+        return allValues;
+    }
+    
+    /**
+     * Performs an in-order traversal of the tree, collecting keys and their associated values
+     * @param keys List to store the keys in sorted order
+     * @param values List to store the corresponding values
+     */
+    public void inOrderTraversalWithValues(List<K> keys, List<JSONObject> values) {
+        if (root != null) {
+            root.inOrderTraversalWithValues(keys, values);
+        }
+    }
 
+    /**
+     * Inserts a key-value pair into the B-tree.
+     * 
+     * @param key The key to insert
+     * @param value The value associated with the key
+     */
     public void insert(K key, V value) {
         if (root == null) {
             root = new BTreeNode<>(t);
             root.getKeys()[0] = key;
             root.setN(1);
+            
+            // Ensure the value is stored properly
+            if (value != null && key != null) {
+                root.getValues().put(key.toString(), value);
+            }
         } else {
             if (root.getN() == 2 * t - 1) {
                 BTreeNode<K, V> newRoot = new BTreeNode<>(t);
@@ -73,79 +144,44 @@ public class BTree<K extends Comparable<K>, V> {
 
     public void printBTree() {
         if (root != null) {
-            root.printInOrder();
+            List<K> sortedKeys = new ArrayList<>();
+            root.inOrderTraversal(sortedKeys);
+            for (K key : sortedKeys) {
+                System.out.print(key + " ");
+            }
         }
         System.out.println();
     }
 
-    public static void testRun() {
-        BTree<String, String> tree = new BTree<>(3);
-
-        // Insert keys with values
-        tree.insert("B", "test_B");
-        tree.insert("F", "test_A");
-        tree.insert("E", "test_C");
-        tree.insert("D", "test_D");
-        tree.insert("C", "test_E");
-        tree.insert("A", "test_F");
-        tree.insert("G", "test_G");
-
-        System.out.println("Initial BTree:");
-        tree.printBTree();
-
-        // Search and print results for key "A"
-        BTreeNode<String, String> nodeA = tree.search("A");
-        if (nodeA != null) {
-            System.out.println("Found A: " + nodeA.getValues().toString());
-        } else {
-            System.out.println("A not found");
+    /**
+     * Checks if a key exists in the tree
+     * 
+     * @param key The key to check
+     * @return true if the key exists, false otherwise
+     */
+    public boolean containsKey(K key) {
+        if (root == null) {
+            return false;
         }
-
-        // Delete key "A"
-        System.out.println("\nDeleting key A");
-        tree.delete("A");
-        tree.printBTree();
-
-        // Verify deletion of key "A"
-        nodeA = tree.search("A");
-        if (nodeA != null) {
-            System.out.println("Found A: " + nodeA.getValues().toString());
-        } else {
-            System.out.println("A not found");
+        BTreeNode<K, V> node = root.search(key);
+        return node != null && node.containsKey(key);
+    }
+    
+    /**
+     * Checks if a key has a non-null value in the tree
+     * 
+     * @param key The key to check
+     * @return true if the key has a non-null value, false otherwise
+     */
+    public boolean containsValue(K key) {
+        if (root == null) {
+            return false;
         }
-
-        // Delete key "C"
-        System.out.println("\nDeleting key C");
-        tree.delete("C");
-        tree.printBTree();
-
-        // Verify deletion of key "C"
-        BTreeNode<String, String> nodeC = tree.search("C");
-        if (nodeC != null) {
-            System.out.println("Found C: " + nodeC.getValues().toString());
-        } else {
-            System.out.println("C not found");
+        BTreeNode<K, V> node = root.search(key);
+        if (node != null) {
+            JSONObject values = node.getValues();
+            return values != null && values.has(key.toString()) && values.get(key.toString()) != null;
         }
-
-        // Delete key "D"
-        System.out.println("\nDeleting key D");
-        tree.delete("D");
-        tree.printBTree();
-
-        // Sorting example
-        System.out.println("\nSorted keys in the BTree:");
-        List<String> sortedKeys = tree.getSortedKeys();
-        for (String key : sortedKeys) {
-            System.out.println(key);
-        }
-
-        // Search example for key "E"
-        System.out.println("\nSearching for key E:");
-        BTreeNode<String, String> nodeE = tree.search("E");
-        if (nodeE != null) {
-            System.out.println("Found E: " + nodeE.getValues().toString());
-        } else {
-            System.out.println("E not found");
-        }
+        return false;
     }
 }

@@ -1,81 +1,90 @@
 package com.nhlstenden.booktopia.BST;
 
 import java.util.Comparator;
+import java.util.List;
 import org.json.JSONObject;
 
 public class BinarySearchTree<T> {
     private Node root;
     private Comparator<T> comparator;
 
-    // Constructor accepts a Comparator to compare generic objects
+    // Constructor accepts a Comparator to compare keys
     public BinarySearchTree(Comparator<T> comparator) {
         this.comparator = comparator;
     }
 
-    // Node class for generic object
+    // Node class stores key and value, with value represented as a JSONObject.
     private class Node {
-        T data;
+        T key;
+        JSONObject value;
         Node left, right;
 
-        Node(T data) {
-            this.data = data;
+        Node(T key, JSONObject value) {
+            this.key = key;
+            this.value = value;
             left = right = null;
         }
     }
 
-    // Insert method for generic objects
-    public void insert(T data) {
-        root = insertRec(root, data);
+    // Insert method accepting both key and JSON value.
+    public void insert(T key, JSONObject value) {
+        root = insertRec(root, key, value);
     }
 
-    private Node insertRec(Node root, T data) {
+    private Node insertRec(Node root, T key, JSONObject value) {
         if (root == null) {
-            root = new Node(data);
-            return root;
+            return new Node(key, value);
         }
 
-        if (comparator.compare(data, root.data) < 0) {
-            root.left = insertRec(root.left, data);
-        } else if (comparator.compare(data, root.data) > 0) {
-            root.right = insertRec(root.right, data);
+        int cmp = comparator.compare(key, root.key);
+        if (cmp < 0) {
+            root.left = insertRec(root.left, key, value);
+        } else if (cmp > 0) {
+            root.right = insertRec(root.right, key, value);
+        } else {
+            // If the key already exists, update the value.
+            root.value = value;
         }
-
         return root;
     }
 
-    // Search method for generic objects
-    public boolean search(T data) {
-        return searchRec(root, data) != null;
+    // Search method returns the JSON value for a given key.
+    public JSONObject search(T key) {
+        Node result = searchRec(root, key);
+        return result != null ? result.value : null;
     }
 
-    private Node searchRec(Node root, T data) {
-        if (root == null || comparator.compare(data, root.data) == 0) {
-            return root;
-        }
-
-        if (comparator.compare(data, root.data) < 0) {
-            return searchRec(root.left, data);
-        }
-
-        return searchRec(root.right, data);
-    }
-
-    // Delete method for generic objects
-    public void delete(T data) {
-        root = deleteRec(root, data);
-    }
-
-    private Node deleteRec(Node root, T data) {
+    private Node searchRec(Node root, T key) {
         if (root == null) {
+            return null;
+        }
+        int cmp = comparator.compare(key, root.key);
+        if (cmp == 0) {
             return root;
+        } else if (cmp < 0) {
+            return searchRec(root.left, key);
+        } else {
+            return searchRec(root.right, key);
+        }
+    }
+
+    // Delete method removes a node based on its key.
+    public void delete(T key) {
+        root = deleteRec(root, key);
+    }
+
+    private Node deleteRec(Node root, T key) {
+        if (root == null) {
+            return null;
         }
 
-        if (comparator.compare(data, root.data) < 0) {
-            root.left = deleteRec(root.left, data);
-        } else if (comparator.compare(data, root.data) > 0) {
-            root.right = deleteRec(root.right, data);
+        int cmp = comparator.compare(key, root.key);
+        if (cmp < 0) {
+            root.left = deleteRec(root.left, key);
+        } else if (cmp > 0) {
+            root.right = deleteRec(root.right, key);
         } else {
-            // Node with only one child or no child
+            // Node with only one child or no child.
             if (root.left == null) {
                 return root.right;
             } else if (root.right == null) {
@@ -83,35 +92,69 @@ public class BinarySearchTree<T> {
             }
 
             // Node with two children: Get the inorder successor (smallest in the right subtree)
-            root.data = minValue(root.right);
-
-            // Delete the inorder successor
-            root.right = deleteRec(root.right, root.data);
+            Node temp = findMin(root.right);
+            root.key = temp.key;
+            root.value = temp.value;
+            // Delete the inorder successor.
+            root.right = deleteRec(root.right, temp.key);
         }
-
         return root;
     }
 
-    // Helper method to find the minimum value node in the tree
-    private T minValue(Node root) {
-        T minValue = root.data;
-        while (root.left != null) {
-            minValue = root.left.data;
-            root = root.left;
+    // Helper method to find the minimum value node in a given subtree.
+    private Node findMin(Node node) {
+        while (node.left != null) {
+            node = node.left;
         }
-        return minValue;
+        return node;
     }
 
-    // Inorder Traversal to print the tree
+    // Inorder Traversal: prints each node as a JSON object.
     public void inorder() {
         inorderRec(root);
     }
 
-    private void inorderRec(Node root) {
-        if (root != null) {
-            inorderRec(root.left);
-            System.out.println(root.data);
-            inorderRec(root.right);
+    private void inorderRec(Node node) {
+        if (node != null) {
+            inorderRec(node.left);
+            System.out.println("{ \"key\": " + node.key + ", \"value\": " + node.value.toString() + " }");
+            inorderRec(node.right);
+        }
+    }
+    
+    /**
+     * Performs an inorder traversal and collects all keys in the tree.
+     * 
+     * @param keys A list to which all keys will be added in sorted order
+     */
+    public void inOrderTraversal(List<T> keys) {
+        inOrderTraversalRec(root, keys);
+    }
+    
+    private void inOrderTraversalRec(Node node, List<T> keys) {
+        if (node != null) {
+            inOrderTraversalRec(node.left, keys);
+            keys.add(node.key);
+            inOrderTraversalRec(node.right, keys);
+        }
+    }
+    
+    /**
+     * Performs an inorder traversal and collects both keys and values in the tree.
+     * 
+     * @param keys A list to which all keys will be added in sorted order
+     * @param values A list to which all values will be added in the same order as the keys
+     */
+    public void inOrderTraversalWithValues(List<T> keys, List<JSONObject> values) {
+        inOrderTraversalWithValuesRec(root, keys, values);
+    }
+    
+    private void inOrderTraversalWithValuesRec(Node node, List<T> keys, List<JSONObject> values) {
+        if (node != null) {
+            inOrderTraversalWithValuesRec(node.left, keys, values);
+            keys.add(node.key);
+            values.add(node.value);
+            inOrderTraversalWithValuesRec(node.right, keys, values);
         }
     }
 }
