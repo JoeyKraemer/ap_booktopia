@@ -207,13 +207,6 @@ public class TreeConverterService<K extends Comparable<K>, V> {
         
         System.out.println("Converting to BTree - Found " + keyValueMap.size() + " key-value pairs");
         
-        // Special handling for "A Short History of Nearly Everything" which seems to lose its value
-        if (keyValueMap.containsKey((K) "A Short History of Nearly Everything")) {
-            System.out.println("Special handling for 'A Short History of Nearly Everything'");
-            V value = keyValueMap.get((K) "A Short History of Nearly Everything");
-            System.out.println("Value before insertion: " + (value != null ? value.toString() : "null"));
-        }
-        
         // Insert all key-value pairs into the new B-tree
         for (Map.Entry<K, V> entry : keyValueMap.entrySet()) {
             K key = entry.getKey();

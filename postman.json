@@ -180,6 +180,34 @@
           "response": []
         },
         {
+          "name": "Search Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/search?query=harry",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "harry"
+                }
+              ]
+            },
+            "description": "Search for data in the current tree structure. This endpoint searches through keys and all fields of the values for matches with the given query."
+          },
+          "response": []
+        },
+        {
           "name": "Delete Data",
           "request": {
             "method": "DELETE",

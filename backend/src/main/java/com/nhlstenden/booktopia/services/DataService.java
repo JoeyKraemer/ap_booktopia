@@ -91,6 +91,7 @@ public class DataService {
     
     /**
      * Imports data from a CSV file into the current tree structure.
+     * Uses the header row to determine field names.
      * 
      * @param reader The BufferedReader for the CSV file
      * @return The number of records imported
@@ -99,34 +100,31 @@ public class DataService {
         int count = 0;
         String line;
         
-        // Skip header line
-        reader.readLine();
+        // Read header line to get field names
+        String headerLine = reader.readLine();
+        if (headerLine == null) {
+            throw new Exception("CSV file is empty or has no header row");
+        }
+        
+        List<String> headers = parseCSVLine(headerLine);
         
         while ((line = reader.readLine()) != null) {
             List<String> fields = parseCSVLine(line);
             
-            if (fields.size() >= 4) { // Assuming CSV has at least 4 columns
-                String title = fields.get(0);
-                String author = fields.get(1);
-                String rating = fields.get(2);
-                String isbn = fields.get(3);
+            if (fields.size() > 0) {
+                // Use the first column as the key (usually ID or title)
+                String key = fields.get(0);
                 
-                // Create a JSONObject to store the book data
-                JSONObject bookData = new JSONObject();
-                bookData.put("title", title);
-                bookData.put("author", author);
-                bookData.put("rating", rating);
-                bookData.put("isbn", isbn);
+                // Create a JSONObject to store the data
+                JSONObject data = new JSONObject();
                 
-                // Add additional fields if available
-                if (fields.size() > 4) {
-                    for (int i = 4; i < fields.size(); i++) {
-                        bookData.put("field" + i, fields.get(i));
-                    }
+                // Map each field to its corresponding header
+                for (int i = 0; i < fields.size() && i < headers.size(); i++) {
+                    data.put(headers.get(i), fields.get(i));
                 }
                 
                 // Insert into the current tree
-                addData(title, bookData);
+                addData(key, data);
                 count++;
             }
         }
@@ -289,11 +287,11 @@ public class DataService {
     
     /**
      * Gets data formatted for display in datacards on the frontend.
-     * Each datacard has a title (key) and up to 5 most important values.
+     * Each datacard has a title (key) and all values.
      * 
      * @param sortBy The property to sort by (optional)
      * @param sortDirection The sort direction ("ASC" or "DESC")
-     * @return A list of datacards with title and selected values
+     * @return A list of datacards with title and values
      */
     public List<Map<String, Object>> getDataCardDisplayData(String sortBy, String sortDirection) {
         // Get all keys and values
@@ -311,30 +309,12 @@ public class DataService {
             Map<String, Object> datacard = new HashMap<>();
             datacard.put("title", key);
             
-            // Add up to 5 important values to the datacard
             if (value != null) {
                 Map<String, Object> cardValues = new HashMap<>();
-                int valueCount = 0;
                 
-                // Priority fields to include if they exist
-                String[] priorityFields = {"author", "rating", "isbn", "title", "year", "publisher"};
-                
-                // First add priority fields
-                for (String field : priorityFields) {
-                    if (value.has(field) && valueCount < 5) {
-                        cardValues.put(field, value.get(field));
-                        valueCount++;
-                    }
-                }
-                
-                // If we still have room, add other fields
-                if (valueCount < 5) {
-                    for (String field : value.keySet()) {
-                        if (!cardValues.containsKey(field) && valueCount < 5) {
-                            cardValues.put(field, value.get(field));
-                            valueCount++;
-                        }
-                    }
+                // Add all fields from the value
+                for (String field : value.keySet()) {
+                    cardValues.put(field, value.get(field));
                 }
                 
                 datacard.put("values", cardValues);
@@ -391,5 +371,101 @@ public class DataService {
         }
         
         return datacards;
+    }
+    
+    /**
+     * Searches for data in the current tree structure.
+     * This method uses the tree-specific search algorithms when possible for exact key matches,
+     * and falls back to a more comprehensive search for partial matches in keys and values.
+     * 
+     * @param query The search query
+     * @return A list of matching data items
+     */
+    public List<Map<String, Object>> searchData(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        
+        // Convert query to lowercase for case-insensitive search
+        String lowerQuery = query.toLowerCase();
+        
+        // Create a list to hold search results
+        List<Map<String, Object>> results = new ArrayList<>();
+        
+        // First, try an exact key search using the tree's native search algorithm
+        try {
+            // Try to use the query as a key for exact match - use String directly since our keys are Strings
+            JSONObject exactMatch = (JSONObject) treeConverterService.search(query);
+            if (exactMatch != null) {
+                // Found an exact match by key
+                Map<String, Object> result = new HashMap<>();
+                result.put("key", query);
+                
+                // Add all fields from the value
+                for (String field : exactMatch.keySet()) {
+                    result.put(field, exactMatch.get(field));
+                }
+                
+                results.add(result);
+                System.out.println("Found exact match using tree-specific search for key: " + query);
+                
+                // If we found an exact match, we could return early,
+                // but we'll continue to search for partial matches as well
+            }
+        } catch (Exception e) {
+            // Ignore exceptions from trying to use the query as a key
+            // This is expected if the query isn't a valid key
+            System.out.println("Could not perform exact key search: " + e.getMessage());
+        }
+        
+        // Get all keys and values for partial matching
+        List<String> keys = treeConverterService.getAllKeys();
+        List<JSONObject> values = treeConverterService.getAllValues();
+        
+        // Search through all data for partial matches
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            JSONObject value = i < values.size() ? values.get(i) : null;
+            
+            // Skip if this key was already added as an exact match
+            if (key.equals(query) && !results.isEmpty()) {
+                continue;
+            }
+            
+            boolean matches = false;
+            
+            // Check if key contains the query
+            if (key.toLowerCase().contains(lowerQuery)) {
+                matches = true;
+            }
+            
+            // Check if any value contains the query
+            if (!matches && value != null) {
+                for (String field : value.keySet()) {
+                    String fieldValue = value.get(field).toString();
+                    if (fieldValue.toLowerCase().contains(lowerQuery)) {
+                        matches = true;
+                        break;
+                    }
+                }
+            }
+            
+            // If there's a match, add to results
+            if (matches) {
+                Map<String, Object> result = new HashMap<>();
+                result.put("key", key);
+                
+                // Add all fields from the value
+                if (value != null) {
+                    for (String field : value.keySet()) {
+                        result.put(field, value.get(field));
+                    }
+                }
+                
+                results.add(result);
+            }
+        }
+        
+        return results;
     }
 }
