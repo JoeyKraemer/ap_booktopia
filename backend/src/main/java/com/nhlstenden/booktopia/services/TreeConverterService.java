@@ -155,30 +155,83 @@ public class TreeConverterService<K extends Comparable<K>, V> {
         // Create a new B-tree with the specified degree
         BTree<K, V> newBTree = new BTree<>(bTreeDegree);
         
-        // Get all keys and values from the current tree
-        List<K> keys = getAllKeys();
-        List<V> values = getAllValues();
+        // Use a map to ensure keys and values stay properly associated
+        Map<K, V> keyValueMap = new HashMap<>();
         
-        System.out.println("Converting to BTree - Found " + keys.size() + " keys and " + values.size() + " values");
+        // Populate the map based on the current tree type
+        switch (currentTreeType) {
+            case "AVL":
+                // For AVL tree, get all keys and then find their values
+                List<K> avlKeys = new ArrayList<>();
+                avlTree.inOrderTraversal(avlKeys);
+                
+                for (K key : avlKeys) {
+                    JSONObject value = avlTree.search(key);
+                    if (value != null) {
+                        keyValueMap.put(key, (V) value);
+                    } else {
+                        System.out.println("Warning: No value found in AVL tree for key: " + key);
+                    }
+                }
+                break;
+                
+            case "BST":
+                // For BST tree, get all keys and then find their values
+                List<K> bstKeys = new ArrayList<>();
+                bst.inOrderTraversal(bstKeys);
+                
+                for (K key : bstKeys) {
+                    JSONObject value = bst.search(key);
+                    if (value != null) {
+                        keyValueMap.put(key, (V) value);
+                    } else {
+                        System.out.println("Warning: No value found in BST tree for key: " + key);
+                    }
+                }
+                break;
+                
+            case "BTree":
+                // For BTree, get all keys and then find their values
+                List<K> btreeKeys = bTree.getSortedKeys();
+                
+                for (K key : btreeKeys) {
+                    V value = bTree.search(key);
+                    if (value != null) {
+                        keyValueMap.put(key, value);
+                    } else {
+                        System.out.println("Warning: No value found in BTree for key: " + key);
+                    }
+                }
+                break;
+        }
+        
+        System.out.println("Converting to BTree - Found " + keyValueMap.size() + " key-value pairs");
+        
+        // Special handling for "A Short History of Nearly Everything" which seems to lose its value
+        if (keyValueMap.containsKey((K) "A Short History of Nearly Everything")) {
+            System.out.println("Special handling for 'A Short History of Nearly Everything'");
+            V value = keyValueMap.get((K) "A Short History of Nearly Everything");
+            System.out.println("Value before insertion: " + (value != null ? value.toString() : "null"));
+        }
         
         // Insert all key-value pairs into the new B-tree
-        for (int i = 0; i < keys.size(); i++) {
-            K key = keys.get(i);
-            V value = (i < values.size()) ? values.get(i) : null;
+        for (Map.Entry<K, V> entry : keyValueMap.entrySet()) {
+            K key = entry.getKey();
+            V value = entry.getValue();
             
-            // Skip null values
             if (value == null) {
                 System.out.println("Warning: Skipping null value for key: " + key);
-                // Try to get the value directly using search
-                value = search(key);
-                if (value == null) {
-                    System.out.println("Still couldn't find value for key: " + key);
-                    continue;
-                }
-                System.out.println("Found value using search for key: " + key);
+                continue;
             }
             
+            // Insert the key-value pair
             newBTree.insert(key, value);
+            
+            // Verify the insertion
+            V checkValue = newBTree.search(key);
+            if (checkValue == null) {
+                System.out.println("Warning: Value not found after insertion for key: " + key);
+            }
         }
         
         // Update current tree type and tree
@@ -328,14 +381,34 @@ public class TreeConverterService<K extends Comparable<K>, V> {
         switch (currentTreeType) {
             case "AVL":
                 JSONObject avlResult = avlTree.search(key);
+                if (avlResult == null) {
+                    System.out.println("AVL search: No value found for key: " + key);
+                }
                 return (V) avlResult;
                 
             case "BST":
                 JSONObject bstResult = bst.search(key);
+                if (bstResult == null) {
+                    System.out.println("BST search: No value found for key: " + key);
+                }
                 return (V) bstResult;
                 
             case "BTree":
                 V result = bTree.search(key);
+                if (result == null) {
+                    System.out.println("BTree search: No value found for key: " + key);
+                    // Try to find the key in the BTree nodes directly
+                    List<K> keys = new ArrayList<>();
+                    List<JSONObject> values = new ArrayList<>();
+                    bTree.inOrderTraversalWithValues(keys, values);
+                    
+                    for (int i = 0; i < keys.size(); i++) {
+                        if (keys.get(i).equals(key) && values.get(i) != null) {
+                            System.out.println("Found value in BTree traversal for key: " + key);
+                            return (V) values.get(i);
+                        }
+                    }
+                }
                 return result;
                 
             default:

@@ -460,18 +460,25 @@ public class BTreeNode<K extends Comparable<K>, V> {
             keysList.add(keys[i]);
             
             // Get the value directly from the values JSONObject
-            if (values.has(keys[i].toString())) {
+            if (values != null && values.has(keys[i].toString())) {
                 Object valueObj = values.get(keys[i].toString());
-                if (valueObj instanceof JSONObject) {
-                    valuesList.add((JSONObject)valueObj);
+                if (valueObj != null && valueObj != JSONObject.NULL) {
+                    if (valueObj instanceof JSONObject) {
+                        valuesList.add((JSONObject)valueObj);
+                    } else {
+                        // For non-JSONObject values, create a simple wrapper
+                        JSONObject wrapper = new JSONObject();
+                        wrapper.put("value", valueObj);
+                        valuesList.add(wrapper);
+                    }
                 } else {
-                    // For non-JSONObject values, create a simple wrapper
-                    JSONObject wrapper = new JSONObject();
-                    wrapper.put("value", valueObj);
-                    valuesList.add(wrapper);
+                    // Add a null value to maintain index correspondence with keys
+                    System.out.println("Warning: Null value found for key: " + keys[i]);
+                    valuesList.add(null);
                 }
             } else {
                 // Add a null value to maintain index correspondence with keys
+                System.out.println("Warning: No value found for key: " + keys[i]);
                 valuesList.add(null);
             }
         }

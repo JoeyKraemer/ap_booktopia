@@ -24,6 +24,12 @@ public class BTree<K extends Comparable<K>, V> {
         return root.search(key);
     }
 
+    /**
+     * Searches for a value associated with the given key.
+     * 
+     * @param key The key to search for
+     * @return The value associated with the key, or null if the key is not found
+     */
     public V search(K key) {
         if (root == null) {
             return null;
@@ -33,8 +39,20 @@ public class BTree<K extends Comparable<K>, V> {
         if (node != null) {
             JSONObject values = node.getValues();
             if (values != null && values.has(key.toString())) {
-                return (V) values.get(key.toString());
+                try {
+                    // Get the value and ensure it's not null or JSONObject.NULL
+                    Object valueObj = values.get(key.toString());
+                    if (valueObj != null && valueObj != JSONObject.NULL) {
+                        return (V) valueObj;
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error retrieving value for key: " + key);
+                    e.printStackTrace();
+                }
             }
+            
+            // If we get here, the key exists but has no value or the value is null
+            System.out.println("Key exists but has no value: " + key);
         }
         
         return null;
@@ -71,11 +89,22 @@ public class BTree<K extends Comparable<K>, V> {
         }
     }
 
+    /**
+     * Inserts a key-value pair into the B-tree.
+     * 
+     * @param key The key to insert
+     * @param value The value associated with the key
+     */
     public void insert(K key, V value) {
         if (root == null) {
             root = new BTreeNode<>(t);
             root.getKeys()[0] = key;
             root.setN(1);
+            
+            // Ensure the value is stored properly
+            if (value != null && key != null) {
+                root.getValues().put(key.toString(), value);
+            }
         } else {
             if (root.getN() == 2 * t - 1) {
                 BTreeNode<K, V> newRoot = new BTreeNode<>(t);

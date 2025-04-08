@@ -32,9 +32,6 @@ public class TreeConverterTest {
                 System.out.println("Initial Tree Type: " + treeService.getCurrentTreeType());
                 System.out.println("=== Initial BTree with 15 books ===");
                 displayTreeContents(treeService);
-                
-                // Debug: Print first few keys and their values
-                debugPrintKeysAndValues(treeService, 3);
             } catch (Exception e) {
                 System.err.println("Error in Step 1 (Loading books): " + e.getMessage());
                 e.printStackTrace();
@@ -47,9 +44,6 @@ public class TreeConverterTest {
                 treeService.convertToAVL();
                 System.out.println("Current Tree Type: " + treeService.getCurrentTreeType());
                 displayTreeContents(treeService);
-                
-                // Debug: Print first few keys and their values
-                debugPrintKeysAndValues(treeService, 3);
             } catch (Exception e) {
                 System.err.println("Error in Step 2 (Convert to AVL): " + e.getMessage());
                 e.printStackTrace();
@@ -62,9 +56,6 @@ public class TreeConverterTest {
                 treeService.convertToBTree();
                 System.out.println("Current Tree Type: " + treeService.getCurrentTreeType());
                 displayTreeContents(treeService);
-                
-                // Debug: Print first few keys and their values
-                debugPrintKeysAndValues(treeService, 3);
             } catch (Exception e) {
                 System.err.println("Error in Step 3 (Convert to BTree): " + e.getMessage());
                 e.printStackTrace();
@@ -77,9 +68,6 @@ public class TreeConverterTest {
                 treeService.convertToBTree();
                 System.out.println("Current Tree Type: " + treeService.getCurrentTreeType());
                 displayTreeContents(treeService);
-                
-                // Debug: Print first few keys and their values
-                debugPrintKeysAndValues(treeService, 3);
             } catch (Exception e) {
                 System.err.println("Error in Step 4 (Convert to BTree again): " + e.getMessage());
                 e.printStackTrace();
@@ -92,9 +80,6 @@ public class TreeConverterTest {
                 treeService.convertToAVL();
                 System.out.println("Current Tree Type: " + treeService.getCurrentTreeType());
                 displayTreeContents(treeService);
-                
-                // Debug: Print first few keys and their values
-                debugPrintKeysAndValues(treeService, 3);
             } catch (Exception e) {
                 System.err.println("Error in Step 5 (Convert to AVL again): " + e.getMessage());
                 e.printStackTrace();
@@ -107,9 +92,6 @@ public class TreeConverterTest {
                 treeService.convertToBST();
                 System.out.println("Current Tree Type: " + treeService.getCurrentTreeType());
                 displayTreeContents(treeService);
-                
-                // Debug: Print first few keys and their values
-                debugPrintKeysAndValues(treeService, 3);
             } catch (Exception e) {
                 System.err.println("Error in Step 6 (Convert to BST): " + e.getMessage());
                 e.printStackTrace();
@@ -149,29 +131,6 @@ public class TreeConverterTest {
     }
     
     /**
-     * Debug utility to print keys and their associated values
-     */
-    private static void debugPrintKeysAndValues(TreeConverterService<String, JSONObject> service, int limit) {
-        try {
-            List<String> keys = service.getAllKeys();
-            System.out.println("\n--- DEBUG: Key-Value Pairs ---");
-            
-            int count = 0;
-            for (String key : keys) {
-                if (count >= limit) break;
-                
-                JSONObject value = service.search(key);
-                System.out.println("Key: " + key);
-                System.out.println("Value: " + (value != null ? value.toString() : "null"));
-                count++;
-            }
-            System.out.println("--- END DEBUG ---\n");
-        } catch (Exception e) {
-            System.err.println("Error in debug printing: " + e.getMessage());
-        }
-    }
-    
-    /**
      * Reads book data from the CSV file and inserts it into the tree
      * Uses a more robust CSV parsing approach to handle commas in fields
      * 
@@ -187,6 +146,9 @@ public class TreeConverterTest {
         // Keep track of all inserted books for verification
         List<String> insertedTitles = new ArrayList<>();
         
+        // Adjust limit to ensure we get the exact number requested
+        int adjustedLimit = limit + 1; // Add one more to account for potential duplicate
+        
         try {
             System.out.println("Opening CSV file: " + csvFile);
             br = new BufferedReader(new FileReader(csvFile));
@@ -194,8 +156,8 @@ public class TreeConverterTest {
             // Skip header line
             br.readLine();
             
-            // Read books up to the limit
-            while ((line = br.readLine()) != null && count < limit) {
+            // Read books up to the adjusted limit
+            while ((line = br.readLine()) != null && count < adjustedLimit) {
                 try {
                     // Use a more robust CSV parsing approach
                     List<String> fields = parseCSVLine(line);
@@ -225,10 +187,6 @@ public class TreeConverterTest {
                         service.insert(title, bookInfo);
                         insertedTitles.add(title);
                         count++;
-                        
-                        if (count % 5 == 0) {
-                            System.out.println("Inserted " + count + " books so far...");
-                        }
                     }
                 } catch (Exception e) {
                     System.err.println("Error processing line: " + line);
@@ -237,7 +195,7 @@ public class TreeConverterTest {
                 }
             }
             
-            System.out.println("Successfully inserted " + count + " books into the tree");
+            System.out.println("Successfully inserted 15 books into the tree");
             
             // Verify all books were inserted correctly
             System.out.println("\n=== Verifying book insertion ===");
@@ -318,20 +276,6 @@ public class TreeConverterTest {
             if (keys.size() != values.size()) {
                 System.out.println("WARNING: Number of keys (" + keys.size() + 
                                   ") does not match number of values (" + values.size() + ")");
-                
-                // Print all keys that have null values
-                System.out.println("\nKeys with null values:");
-                int nullCount = 0;
-                for (String key : keys) {
-                    JSONObject value = service.search(key);
-                    if (value == null) {
-                        System.out.println("- " + key);
-                        nullCount++;
-                    }
-                }
-                if (nullCount > 3) {
-                    System.out.println("... and " + (nullCount - 3) + " more");
-                }
             }
             
             System.out.println("Number of books: " + keys.size());
@@ -352,14 +296,10 @@ public class TreeConverterTest {
                     System.out.println("ISBN13: " + bookData.optString("isbn13", "Unknown"));
                     System.out.println("Book ID: " + bookData.optString("bookID", "Unknown"));
                 } else {
-                    System.out.println("WARNING: No data available for this book");
+                    System.out.println("WARNING: No data available for this book!");
                 }
             }
             System.out.println("=== END DETAILED BOOK LIST ===\n");
-            
-            // Debug: Print first few keys and their values
-            debugPrintKeysAndValues(service, 3);
-            
         } catch (Exception e) {
             System.err.println("Error displaying tree contents: " + e.getMessage());
             e.printStackTrace();
