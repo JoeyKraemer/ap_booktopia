@@ -66,37 +66,110 @@ public class BTreeNode<K extends Comparable<K>, V> {
             i++;
         }
 
+        // If key is found in this node
         if (i < n && keys[i].equals(key)) {
-            return this;
+            // Check if this node has the value for this key
+            if (values.has(key.toString())) {
+                return this;
+            }
         }
 
+        // If this is a leaf node and key not found with value, return null
         if (isLeaf) {
             return null;
         }
 
-        return children[i].search(key);
+        // Otherwise, search in the appropriate child
+        BTreeNode<K, V> childResult = children[i].search(key);
+        if (childResult != null) {
+            return childResult;
+        }
+        
+        // If not found in child, but key exists in this node, return this node
+        // This helps with cases where the key exists but value might be missing
+        if (i < n && keys[i].equals(key)) {
+            return this;
+        }
+        
+        return null;
     }
 
     protected void insertNonFull(K key, V value) {
         int i = n - 1;
+
         if (isLeaf) {
+            // Check if the key already exists in this node
+            for (int j = 0; j < n; j++) {
+                if (keys[j].equals(key)) {
+                    // Key exists, just update the value
+                    if (value != null) {
+                        if (value instanceof JSONObject) {
+                            // If it's a JSONObject, store it directly
+                            values.put(key.toString(), value);
+                        } else {
+                            // For other value types, convert as needed
+                            values.put(key.toString(), value);
+                        }
+                    }
+                    return; // Exit after updating the value
+                }
+            }
+            
+            // Key doesn't exist, proceed with insertion
+            // Make space for the new key and value
             while (i >= 0 && keys[i].compareTo(key) > 0) {
                 keys[i + 1] = keys[i];
                 i--;
             }
+            
+            // Insert the key
             keys[i + 1] = key;
-            values.put(key.toString(), value);
+            
+            // Ensure the value is stored properly
+            if (value != null) {
+                if (value instanceof JSONObject) {
+                    // If it's a JSONObject, store it directly
+                    values.put(key.toString(), value);
+                } else {
+                    // For other value types, convert as needed
+                    values.put(key.toString(), value);
+                }
+            }
+            
             n = n + 1;
         } else {
+            // Find the child where the key should be inserted
             while (i >= 0 && keys[i].compareTo(key) > 0) {
                 i--;
             }
+            
+            // Check if the key already exists in this node
+            if (i >= 0 && keys[i].equals(key)) {
+                // Key exists, just update the value
+                if (value != null) {
+                    if (value instanceof JSONObject) {
+                        // If it's a JSONObject, store it directly
+                        values.put(key.toString(), value);
+                    } else {
+                        // For other value types, convert as needed
+                        values.put(key.toString(), value);
+                    }
+                }
+                return; // Exit after updating the value
+            }
+            
+            // If the child is full, split it
             if (children[i + 1].getN() == 2 * t - 1) {
                 splitChild(i + 1, children[i + 1]);
+                
+                // After splitting, the middle key goes up and the new child is created
+                // Decide which child to go to
                 if (keys[i + 1].compareTo(key) < 0) {
                     i++;
                 }
             }
+            
+            // Insert the key into the appropriate child
             children[i + 1].insertNonFull(key, value);
         }
     }
@@ -108,12 +181,29 @@ public class BTreeNode<K extends Comparable<K>, V> {
 
         for (int j = 0; j < t - 1; j++) {
             z.keys[j] = y.keys[j + t];
+            
+            if (y.keys[j + t] != null) {
+                String keyStr = y.keys[j + t].toString();
+                if (y.values.has(keyStr)) {
+                    z.values.put(keyStr, y.values.get(keyStr));
+                    y.values.remove(keyStr);
+                }
+            }
+            
             y.keys[j + t] = null;
         }
 
         if (!y.isLeaf()) {
             for (int j = 0; j < t; j++) {
                 z.children[j] = y.children[j + t];
+                
+                if (y.children[j + t] != null) {
+                    JSONObject childValues = y.children[j + t].getValues();
+                    for (String key : JSONObject.getNames(childValues)) {
+                        z.values.put(key, childValues.get(key));
+                    }
+                }
+                
                 y.children[j + t] = null;
             }
         }
@@ -135,6 +225,15 @@ public class BTreeNode<K extends Comparable<K>, V> {
             keys[j + 1] = keys[j];
         }
         keys[i] = y.keys[t - 1];
+        
+        if (y.keys[t - 1] != null) {
+            String keyStr = y.keys[t - 1].toString();
+            if (y.values.has(keyStr)) {
+                values.put(keyStr, y.values.get(keyStr));
+                y.values.remove(keyStr);
+            }
+        }
+        
         y.keys[t - 1] = null;
 
         n++;
@@ -326,17 +425,74 @@ public class BTreeNode<K extends Comparable<K>, V> {
     protected void inOrderTraversal(List<K> sortedKeys) {
         int i;
         for (i = 0; i < n; i++) {
-            // If this is not a leaf, traverse the child before this key
             if (!isLeaf) {
                 children[i].inOrderTraversal(sortedKeys);
             }
-            // Add the key to the sorted list
             sortedKeys.add(keys[i]);
         }
 
-        // Traverse the last child
         if (!isLeaf) {
             children[i].inOrderTraversal(sortedKeys);
         }
+    }
+
+    protected void getAllValues(List<JSONObject> valuesList) {
+        if (values.length() > 0) {
+            valuesList.add(values);
+        }
+        
+        if (!isLeaf) {
+            for (int i = 0; i <= n; i++) {
+                if (children[i] != null) {
+                    children[i].getAllValues(valuesList);
+                }
+            }
+        }
+    }
+    
+    protected void inOrderTraversalWithValues(List<K> keysList, List<JSONObject> valuesList) {
+        int i;
+        for (i = 0; i < n; i++) {
+            if (!isLeaf && children[i] != null) {
+                children[i].inOrderTraversalWithValues(keysList, valuesList);
+            }
+            
+            keysList.add(keys[i]);
+            
+            // Get the value directly from the values JSONObject
+            if (values.has(keys[i].toString())) {
+                Object valueObj = values.get(keys[i].toString());
+                if (valueObj instanceof JSONObject) {
+                    valuesList.add((JSONObject)valueObj);
+                } else {
+                    // For non-JSONObject values, create a simple wrapper
+                    JSONObject wrapper = new JSONObject();
+                    wrapper.put("value", valueObj);
+                    valuesList.add(wrapper);
+                }
+            } else {
+                // Add a null value to maintain index correspondence with keys
+                valuesList.add(null);
+            }
+        }
+        
+        if (!isLeaf && children[i] != null) {
+            children[i].inOrderTraversalWithValues(keysList, valuesList);
+        }
+    }
+
+    /**
+     * Checks if this node contains the given key
+     * 
+     * @param key The key to check
+     * @return true if the key exists in this node, false otherwise
+     */
+    protected boolean containsKey(K key) {
+        for (int i = 0; i < n; i++) {
+            if (keys[i].equals(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

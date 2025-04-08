@@ -23,6 +23,7 @@ public class TreeConverterService<K extends Comparable<K>, V> {
     private BinarySearchTree<K> bst;
     private BTree<K, V> bTree;
     private String currentTreeType;
+    private int bTreeDegree;
     
     /**
      * Constructs a new TreeConverterService with a B-Tree as the default structure.
@@ -30,6 +31,7 @@ public class TreeConverterService<K extends Comparable<K>, V> {
     public TreeConverterService() {
         bTree = new BTree<>(3);
         currentTreeType = "BTree";
+        bTreeDegree = 3;
     }
     
     /**
@@ -44,168 +46,146 @@ public class TreeConverterService<K extends Comparable<K>, V> {
     /**
      * Converts the current tree structure to an AVL Tree.
      * This preserves all data from the current tree.
+     * 
+     * @return The converted AVL tree
      */
-    public void convertToAVL() {
-        if (!"AVL".equals(currentTreeType)) {
-            // Create a new AVL tree
-            avlTree = new AVLTree<>();
+    public AVLTree<K> convertToAVL() {
+        // Create a new AVL tree
+        AVLTree<K> newAVLTree = new AVLTree<>();
+        
+        // Get all keys and values from the current tree
+        List<K> keys = getAllKeys();
+        List<V> values = getAllValues();
+        
+        System.out.println("Converting to AVL Tree - Found " + keys.size() + " keys and " + values.size() + " values");
+        
+        // Insert all key-value pairs into the new AVL tree
+        for (int i = 0; i < keys.size(); i++) {
+            K key = keys.get(i);
+            V value = (i < values.size()) ? values.get(i) : null;
             
-            // Get all keys and values from the current tree
-            List<K> keys = new ArrayList<>();
-            List<V> values = new ArrayList<>();
-            
-            if ("BST".equals(currentTreeType)) {
-                // Use inOrderTraversalWithValues to efficiently get keys and JSON values
-                List<JSONObject> jsonValues = new ArrayList<>();
-                bst.inOrderTraversalWithValues(keys, jsonValues);
-                
-                // Extract actual values from JSON
-                for (int i = 0; i < keys.size(); i++) {
-                    K key = keys.get(i);
-                    JSONObject json = jsonValues.get(i);
-                    if (json != null && json.has(key.toString())) {
-                        values.add((V) json.get(key.toString()));
-                    }
+            // Skip null values
+            if (value == null) {
+                System.out.println("Warning: Skipping null value for key: " + key);
+                // Try to get the value directly using search
+                value = search(key);
+                if (value == null) {
+                    System.out.println("Still couldn't find value for key: " + key);
+                    continue;
                 }
-            } else if ("BTree".equals(currentTreeType)) {
-                // Get keys from BTree
-                keys = bTree.getSortedKeys();
-                
-                // Get values for each key
-                for (K key : keys) {
-                    BTreeNode<K, V> node = bTree.search(key);
-                    if (node != null) {
-                        JSONObject valuesObj = node.getValues();
-                        if (valuesObj != null && valuesObj.has(key.toString())) {
-                            values.add((V) valuesObj.get(key.toString()));
-                        }
-                    }
-                }
+                System.out.println("Found value using search for key: " + key);
             }
             
-            // Insert all keys and values into the AVL tree
-            for (int i = 0; i < keys.size(); i++) {
-                if (i < values.size()) {
-                    // Convert value to JSONObject for AVLTree
-                    JSONObject jsonValue = new JSONObject();
-                    jsonValue.put(keys.get(i).toString(), values.get(i));
-                    avlTree.insert(keys.get(i), jsonValue);
-                }
+            // For AVLTree, we need to cast the value to JSONObject
+            if (value instanceof JSONObject) {
+                newAVLTree.insert(key, (JSONObject)value);
+            } else {
+                // If not a JSONObject, wrap it
+                JSONObject wrapper = new JSONObject();
+                wrapper.put(key.toString(), value);
+                newAVLTree.insert(key, wrapper);
             }
-            
-            // Update current tree type
-            currentTreeType = "AVL";
         }
+        
+        // Update current tree type and tree
+        currentTreeType = "AVL";
+        avlTree = newAVLTree;
+        
+        return newAVLTree;
     }
     
     /**
      * Converts the current tree structure to a Binary Search Tree.
      * This preserves all data from the current tree.
+     * 
+     * @return The converted binary search tree
      */
-    public void convertToBST() {
-        if (!"BST".equals(currentTreeType)) {
-            // Create a new BST with a natural order comparator
-            bst = new BinarySearchTree<K>(Comparator.<K>naturalOrder());
+    public BinarySearchTree<K> convertToBST() {
+        // Create a new binary search tree with a comparator for the keys
+        BinarySearchTree<K> newBST = new BinarySearchTree<>((k1, k2) -> ((Comparable<K>)k1).compareTo(k2));
+        
+        // Get all keys and values from the current tree
+        List<K> keys = getAllKeys();
+        List<V> values = getAllValues();
+        
+        System.out.println("Converting to BST - Found " + keys.size() + " keys and " + values.size() + " values");
+        
+        // Insert all key-value pairs into the new binary search tree
+        for (int i = 0; i < keys.size(); i++) {
+            K key = keys.get(i);
+            V value = (i < values.size()) ? values.get(i) : null;
             
-            // Get all keys and values from the current tree
-            List<K> keys = new ArrayList<>();
-            List<V> values = new ArrayList<>();
-            
-            if ("AVL".equals(currentTreeType)) {
-                // Use inOrderTraversalWithValues to efficiently get keys and JSON values
-                List<JSONObject> jsonValues = new ArrayList<>();
-                avlTree.inOrderTraversalWithValues(keys, jsonValues);
-                
-                // Extract actual values from JSON
-                for (int i = 0; i < keys.size(); i++) {
-                    K key = keys.get(i);
-                    JSONObject json = jsonValues.get(i);
-                    if (json != null && json.has(key.toString())) {
-                        values.add((V) json.get(key.toString()));
-                    }
+            // Skip null values
+            if (value == null) {
+                System.out.println("Warning: Skipping null value for key: " + key);
+                // Try to get the value directly using search
+                value = search(key);
+                if (value == null) {
+                    System.out.println("Still couldn't find value for key: " + key);
+                    continue;
                 }
-            } else if ("BTree".equals(currentTreeType)) {
-                // Get keys from BTree
-                keys = bTree.getSortedKeys();
-                
-                // Get values for each key
-                for (K key : keys) {
-                    BTreeNode<K, V> node = bTree.search(key);
-                    if (node != null) {
-                        JSONObject valuesObj = node.getValues();
-                        if (valuesObj != null && valuesObj.has(key.toString())) {
-                            values.add((V) valuesObj.get(key.toString()));
-                        }
-                    }
-                }
+                System.out.println("Found value using search for key: " + key);
             }
             
-            // Insert all keys and values into the BST
-            for (int i = 0; i < keys.size(); i++) {
-                if (i < values.size()) {
-                    // Convert value to JSONObject for BST
-                    JSONObject jsonValue = new JSONObject();
-                    jsonValue.put(keys.get(i).toString(), values.get(i));
-                    bst.insert(keys.get(i), jsonValue);
-                }
+            // For BST, we need to cast the value to JSONObject
+            if (value instanceof JSONObject) {
+                newBST.insert(key, (JSONObject)value);
+            } else {
+                // If not a JSONObject, wrap it
+                JSONObject wrapper = new JSONObject();
+                wrapper.put(key.toString(), value);
+                newBST.insert(key, wrapper);
             }
-            
-            // Update current tree type
-            currentTreeType = "BST";
         }
+        
+        // Update current tree type and tree
+        currentTreeType = "BST";
+        bst = newBST;
+        
+        return newBST;
     }
     
     /**
      * Converts the current tree structure to a B-Tree.
-     * All keys and values from the current structure are preserved in the conversion.
+     * This preserves all data from the current tree.
+     * 
+     * @return The converted B-tree
      */
-    public void convertToBTree() {
-        if (!"BTree".equals(currentTreeType)) {
-            // Create a new BTree
-            bTree = new BTree<>(3);
+    public BTree<K, V> convertToBTree() {
+        // Create a new B-tree with the specified degree
+        BTree<K, V> newBTree = new BTree<>(bTreeDegree);
+        
+        // Get all keys and values from the current tree
+        List<K> keys = getAllKeys();
+        List<V> values = getAllValues();
+        
+        System.out.println("Converting to BTree - Found " + keys.size() + " keys and " + values.size() + " values");
+        
+        // Insert all key-value pairs into the new B-tree
+        for (int i = 0; i < keys.size(); i++) {
+            K key = keys.get(i);
+            V value = (i < values.size()) ? values.get(i) : null;
             
-            // Get all keys and values from the current tree
-            List<K> keys = new ArrayList<>();
-            List<V> values = new ArrayList<>();
-            
-            if ("AVL".equals(currentTreeType)) {
-                // Use inOrderTraversalWithValues to efficiently get keys and JSON values
-                List<JSONObject> jsonValues = new ArrayList<>();
-                avlTree.inOrderTraversalWithValues(keys, jsonValues);
-                
-                // Extract actual values from JSON
-                for (int i = 0; i < keys.size(); i++) {
-                    K key = keys.get(i);
-                    JSONObject json = jsonValues.get(i);
-                    if (json != null && json.has(key.toString())) {
-                        values.add((V) json.get(key.toString()));
-                    }
+            // Skip null values
+            if (value == null) {
+                System.out.println("Warning: Skipping null value for key: " + key);
+                // Try to get the value directly using search
+                value = search(key);
+                if (value == null) {
+                    System.out.println("Still couldn't find value for key: " + key);
+                    continue;
                 }
-            } else if ("BST".equals(currentTreeType)) {
-                // Use inOrderTraversalWithValues to efficiently get keys and JSON values
-                List<JSONObject> jsonValues = new ArrayList<>();
-                bst.inOrderTraversalWithValues(keys, jsonValues);
-                
-                // Extract actual values from JSON
-                for (int i = 0; i < keys.size(); i++) {
-                    K key = keys.get(i);
-                    JSONObject json = jsonValues.get(i);
-                    if (json != null && json.has(key.toString())) {
-                        values.add((V) json.get(key.toString()));
-                    }
-                }
+                System.out.println("Found value using search for key: " + key);
             }
             
-            // Insert all keys and values into the BTree
-            for (int i = 0; i < keys.size(); i++) {
-                if (i < values.size()) {
-                    bTree.insert(keys.get(i), values.get(i));
-                }
-            }
-            
-            // Update current tree type
-            currentTreeType = "BTree";
+            newBTree.insert(key, value);
         }
+        
+        // Update current tree type and tree
+        currentTreeType = "BTree";
+        bTree = newBTree;
+        
+        return newBTree;
     }
     
     /**
@@ -214,16 +194,16 @@ public class TreeConverterService<K extends Comparable<K>, V> {
      * @return A list of all keys in the current tree, sorted in ascending order
      */
     public List<K> getAllKeys() {
+        List<K> keys = new ArrayList<>();
+        
         switch (currentTreeType) {
             case "AVL":
-                List<K> avlKeys = new ArrayList<>();
-                avlTree.inOrderTraversal(avlKeys);
-                return avlKeys;
+                avlTree.inOrderTraversal(keys);
+                return keys;
                 
             case "BST":
-                List<K> bstKeys = new ArrayList<>();
-                bst.inOrderTraversal(bstKeys);
-                return bstKeys;
+                bst.inOrderTraversal(keys);
+                return keys;
                 
             case "BTree":
                 return bTree.getSortedKeys();
@@ -250,10 +230,9 @@ public class TreeConverterService<K extends Comparable<K>, V> {
                 
                 // Extract the actual values from the JSONObjects
                 for (int i = 0; i < avlKeys.size(); i++) {
-                    K key = avlKeys.get(i);
                     JSONObject json = avlJsonValues.get(i);
-                    if (json != null && json.has(key.toString())) {
-                        values.add((V) json.get(key.toString()));
+                    if (json != null) {
+                        values.add((V) json);
                     }
                 }
                 break;
@@ -265,28 +244,28 @@ public class TreeConverterService<K extends Comparable<K>, V> {
                 
                 // Extract the actual values from the JSONObjects
                 for (int i = 0; i < bstKeys.size(); i++) {
-                    K key = bstKeys.get(i);
                     JSONObject json = bstJsonValues.get(i);
-                    if (json != null && json.has(key.toString())) {
-                        values.add((V) json.get(key.toString()));
+                    if (json != null) {
+                        values.add((V) json);
                     }
                 }
                 break;
                 
             case "BTree":
-                // Get keys from BTree
-                List<K> btreeKeys = bTree.getSortedKeys();
+                List<K> btreeKeys = new ArrayList<>();
+                List<JSONObject> btreeJsonValues = new ArrayList<>();
+                bTree.inOrderTraversalWithValues(btreeKeys, btreeJsonValues);
                 
-                // Get values for each key
-                for (K key : btreeKeys) {
-                    BTreeNode<K, V> node = bTree.search(key);
-                    if (node != null) {
-                        JSONObject valuesObj = node.getValues();
-                        if (valuesObj != null && valuesObj.has(key.toString())) {
-                            values.add((V) valuesObj.get(key.toString()));
-                        }
+                // Extract the actual values from the JSONObjects
+                for (int i = 0; i < btreeKeys.size(); i++) {
+                    JSONObject json = btreeJsonValues.get(i);
+                    if (json != null) {
+                        values.add((V) json);
                     }
                 }
+                break;
+                
+            default:
                 break;
         }
         
@@ -302,21 +281,39 @@ public class TreeConverterService<K extends Comparable<K>, V> {
     public void insert(K key, V value) {
         switch (currentTreeType) {
             case "AVL":
-                // Convert value to JSONObject for AVLTree
-                JSONObject avlJsonValue = new JSONObject();
-                avlJsonValue.put(key.toString(), value);
-                avlTree.insert(key, avlJsonValue);
+                // For AVLTree, just insert the JSONObject directly
+                if (value instanceof JSONObject) {
+                    avlTree.insert(key, (JSONObject)value);
+                } else {
+                    // If not a JSONObject, wrap it (should not happen with our current implementation)
+                    JSONObject avlJsonValue = new JSONObject();
+                    avlJsonValue.put(key.toString(), value);
+                    avlTree.insert(key, avlJsonValue);
+                }
                 break;
                 
             case "BST":
-                // Convert value to JSONObject for BST
-                JSONObject bstJsonValue = new JSONObject();
-                bstJsonValue.put(key.toString(), value);
-                bst.insert(key, bstJsonValue);
+                // For BST, just insert the JSONObject directly
+                if (value instanceof JSONObject) {
+                    bst.insert(key, (JSONObject)value);
+                } else {
+                    // If not a JSONObject, wrap it (should not happen with our current implementation)
+                    JSONObject bstJsonValue = new JSONObject();
+                    bstJsonValue.put(key.toString(), value);
+                    bst.insert(key, bstJsonValue);
+                }
                 break;
                 
             case "BTree":
-                bTree.insert(key, value);
+                // For BTree, just insert the JSONObject directly
+                if (value instanceof JSONObject) {
+                    bTree.insert(key, value);
+                } else {
+                    // If not a JSONObject, wrap it (should not happen with our current implementation)
+                    JSONObject btreeJsonValue = new JSONObject();
+                    btreeJsonValue.put(key.toString(), value);
+                    bTree.insert(key, (V)btreeJsonValue);
+                }
                 break;
         }
     }
@@ -331,27 +328,15 @@ public class TreeConverterService<K extends Comparable<K>, V> {
         switch (currentTreeType) {
             case "AVL":
                 JSONObject avlResult = avlTree.search(key);
-                if (avlResult != null && avlResult.has(key.toString())) {
-                    return (V) avlResult.get(key.toString());
-                }
-                return null;
+                return (V) avlResult;
                 
             case "BST":
                 JSONObject bstResult = bst.search(key);
-                if (bstResult != null && bstResult.has(key.toString())) {
-                    return (V) bstResult.get(key.toString());
-                }
-                return null;
+                return (V) bstResult;
                 
             case "BTree":
-                BTreeNode<K, V> node = bTree.search(key);
-                if (node != null) {
-                    JSONObject valuesObj = node.getValues();
-                    if (valuesObj != null && valuesObj.has(key.toString())) {
-                        return (V) valuesObj.get(key.toString());
-                    }
-                }
-                return null;
+                V result = bTree.search(key);
+                return result;
                 
             default:
                 return null;
