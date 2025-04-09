@@ -157,4 +157,8 @@ public class BinarySearchTree<T> {
             inOrderTraversalWithValuesRec(node.right, keys, values);
         }
     }
+
+    public void clear() {
+        root = null;
+    }
 }

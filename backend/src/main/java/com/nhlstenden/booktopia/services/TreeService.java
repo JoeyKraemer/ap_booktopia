@@ -281,4 +281,19 @@ public class TreeService<K extends Comparable<K>, V> {
         System.out.println("search processing time: " + (endTime - startTime) + "ms");
         return result;
     }
+
+    public void clear() {
+        switch (currentTreeType) {
+            case "AVL":
+                avlTree = new AVLTree<>();
+                break;
+            case "BST":
+                bst.clear();
+                break;
+            case "BTree":
+                bTree = new BTree<>(bTreeDegree);
+                break;
+        }
+    }
+
 }
