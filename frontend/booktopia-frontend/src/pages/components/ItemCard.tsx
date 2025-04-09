@@ -1,39 +1,20 @@
 type ItemCardProps = {
     title: string;
-    value1: string;
-    value2: string;
-    value3: string;
-    value4: string;
-    value5: string;
+    values: [string, any][];
 };
 
-export default function ItemCard({
-                                     title,
-                                     value1,
-                                     value2,
-                                     value3,
-                                     value4,
-                                     value5,
-                                 }: ItemCardProps) {
+export default function ItemCard({ title, values }: ItemCardProps) {
     return (
         <div className="bg-white shadow-md rounded-lg p-4 w-full max-w-sm">
             <h3 className="text-xl font-semibold">{title}</h3>
             <div className="space-y-2 mt-2">
-                <div>
-                    <span className="font-medium">Value 1:</span> {value1}
-                </div>
-                <div>
-                    <span className="font-medium">Value 2:</span> {value2}
-                </div>
-                <div>
-                    <span className="font-medium">Value 3:</span> {value3}
-                </div>
-                <div>
-                    <span className="font-medium">Value 4:</span> {value4}
-                </div>
-                <div>
-                    <span className="font-medium">Value 5:</span> {value5}
-                </div>
+                {values
+                    .filter(([key, _value]) => key !== "title")
+                    .map(([key, value], index) => (
+                        <div key={index}>
+                            <span className="font-medium">{key}:</span> {String(value)}
+                        </div>
+                    ))}
             </div>
         </div>
     );
