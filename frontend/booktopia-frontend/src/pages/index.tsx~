@@ -330,22 +330,6 @@ export default function Home() {
                     />
                 </div>
 
-                {isModalOpen && (
-                    <AddItemModal
-                        columns={columns}
-                        onClose={handleCloseModal}
-                        onSubmit={handleAddItem}
-                    />
-                )}
-
-                {isDeleteModalOpen && (
-                    <DeleteConfirmationModal
-                        items={items}  // Pass the items array to the modal
-                        onClose={() => setIsDeleteModalOpen(false)}
-                        onDelete={handleDeleteConfirm}
-                    />
-                )}
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
                     {/* Render sorted items if available; otherwise, fallback to items */}
                     {(sortedItems.length ? sortedItems : items).map((item, index) => (
