@@ -1,7 +1,6 @@
 type ButtonGroupProps = {
     onAdd: () => void;
     onDelete: () => void;
-    onEdit: () => void;
     onConvert: () => void;
     onUpload: () => void;
 };
@@ -9,7 +8,6 @@ type ButtonGroupProps = {
 export default function ButtonGroup({
                                         onAdd,
                                         onDelete,
-                                        onEdit,
                                         onConvert,
                                         onUpload,
                                     }: ButtonGroupProps) {
@@ -26,12 +24,6 @@ export default function ButtonGroup({
                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
             >
                 Delete Item
-            </button>
-            <button
-                onClick={onEdit}
-                className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition"
-            >
-                Edit Item
             </button>
             <button
                 onClick={onConvert}
