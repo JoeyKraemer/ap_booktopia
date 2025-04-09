@@ -146,6 +146,43 @@
       "description": "Operations related to tree conversion and management"
     },
     {
+      "name": "Merge Sort",
+      "description": "Endpoints for testing merge sort operations",
+      "item": [
+        {
+          "name": "Sort Books",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/mergeSort/sort?sortBy=title&sortDirection=ASC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "mergeSort",
+                "sort"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "title"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "ASC"
+                }
+              ]
+            }
+          },
+          "description": "Sort books using merge sort with a dynamic sort field and direction. Change the query parameters (sortBy and sortDirection) as needed."
+        }
+      ]
+    },
+    {
       "name": "Data Operations",
       "item": [
         {
