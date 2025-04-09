@@ -356,6 +356,63 @@
         }
       ],
       "description": "Operations related to sorting data using different algorithms"
-    }
+    },
+    {
+      "name": "5. Merge Sort Operations",
+      "item": [
+        {
+          "name": "MergeSort - Sort Keys",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mergeSort/keys",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mergeSort", "keys"]
+            },
+            "description": "Get all keys sorted using merge sort"
+          },
+          "response": []
+        },
+        {
+          "name": "MergeSort - Sort Keys With Values",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mergeSort/keysWithValues",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mergeSort", "keysWithValues"]
+            },
+            "description": "Get all key-value pairs sorted by key using merge sort"
+          },
+          "response": []
+        },
+        {
+          "name": "MergeSort - Sort By Property",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mergeSort/sortByProperty?property=author&direction=ASC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mergeSort", "sortByProperty"],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "author"
+                },
+                {
+                  "key": "direction",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Sort data by a specified property using merge sort algorithm"
+          },
+          "response": []
+        }
+      ]
+    }    
   ]
 }
