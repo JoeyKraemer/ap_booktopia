@@ -1,0 +1,463 @@
+{
+  "info": {
+    "name": "Booktopia API",
+    "description": "Collection for testing the Booktopia backend API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tree Operations",
+      "item": [
+        {
+          "name": "Get Current Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/tree/current",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tree",
+                "current"
+              ]
+            },
+            "description": "Get the current tree type, keys, and values"
+          },
+          "response": []
+        },
+        {
+          "name": "Convert to AVL",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/convert?targetTree=AVL",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "convert"
+              ],
+              "query": [
+                {
+                  "key": "targetTree",
+                  "value": "AVL"
+                }
+              ]
+            },
+            "description": "Convert the current tree to an AVL tree"
+          },
+          "response": []
+        },
+        {
+          "name": "Convert to BST",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/convert?targetTree=BST",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "convert"
+              ],
+              "query": [
+                {
+                  "key": "targetTree",
+                  "value": "BST"
+                }
+              ]
+            },
+            "description": "Convert the current tree to a Binary Search Tree"
+          },
+          "response": []
+        },
+        {
+          "name": "Convert to BTree",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/convert?targetTree=BTREE",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "convert"
+              ],
+              "query": [
+                {
+                  "key": "targetTree",
+                  "value": "BTREE"
+                }
+              ]
+            },
+            "description": "Convert the current tree to a B-Tree"
+          },
+          "response": []
+        },
+        {
+          "name": "Insert Into Tree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"key\": \"Test Book\",\n    \"value\": {\n        \"author\": \"Test Author\",\n        \"rating\": \"3.5\",\n        \"isbn\": \"1234567890\"\n    }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/tree/insert",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "tree",
+                "insert"
+              ]
+            },
+            "description": "Insert a key-value pair into the current tree"
+          },
+          "response": []
+        }
+      ],
+      "description": "Operations related to tree conversion and management"
+    },
+    {
+      "name": "Data Operations",
+      "item": [
+        {
+          "name": "Add Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"key\": \"The Great Gatsby\",\n    \"value\": {\n        \"author\": \"F. Scott Fitzgerald\",\n        \"rating\": \"4.2\",\n        \"isbn\": \"9780743273565\",\n        \"year\": \"1925\",\n        \"publisher\": \"Scribner\"\n    }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/data/add",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "add"
+              ]
+            },
+            "description": "Add a new key-value pair to the current data structure"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/search?query=harry",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "harry"
+                }
+              ]
+            },
+            "description": "Search for data in the current tree structure. This endpoint searches through keys and all fields of the values for matches with the given query."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Data",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/delete/The Great Gatsby",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "delete",
+                "The Great Gatsby"
+              ]
+            },
+            "description": "Delete a key-value pair from the current data structure"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sortable Properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/sortable-properties",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "sortable-properties"
+              ]
+            },
+            "description": "Get all properties that can be used for sorting"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Table Data (Default Sort)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/table",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "table"
+              ]
+            },
+            "description": "Get data formatted for display in a table (default sort)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Table Data (Sort by Author)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/table?sortBy=author&sortDirection=ASC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "table"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "author"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Get data formatted for display in a table, sorted by author in ascending order"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Table Data (Sort by Rating DESC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/table?sortBy=rating&sortDirection=DESC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "table"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "rating"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "DESC"
+                }
+              ]
+            },
+            "description": "Get data formatted for display in a table, sorted by rating in descending order"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Datacard Data (Default Sort)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/cards",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "cards"
+              ]
+            },
+            "description": "Get data formatted for display as datacards (default sort)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Datacard Data (Sort by Author)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/cards?sortBy=author&sortDirection=ASC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "cards"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "author"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Get data formatted for display as datacards, sorted by author in ascending order"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Datacard Data (Sort by Title)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/cards?sortBy=title&sortDirection=ASC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "cards"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "title"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Get data formatted for display as datacards, sorted by title in ascending order"
+          },
+          "response": []
+        },
+        {
+          "name": "Import CSV Data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/data/import-csv",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "import-csv"
+              ]
+            },
+            "description": "Import data from a CSV file into the current tree structure"
+          },
+          "response": []
+        }
+      ],
+      "description": "Operations related to data management (add, delete, sort, import)"
+    }
+  ]
+}
