@@ -248,7 +248,7 @@
                 "sortable-properties"
               ]
             },
-            "description": "Get all properties that can be used for sorting"
+            "description": "Get a list of all properties that can be used for sorting the data"
           },
           "response": []
         },
@@ -453,6 +453,147 @@
               ]
             },
             "description": "Import data from a CSV file into the current tree structure"
+          },
+          "response": []
+        },
+        {
+          "name": "Sort By Property (Authors ASC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/sort-by-property?property=authors&direction=ASC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "sort-by-property"
+              ],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "authors"
+                },
+                {
+                  "key": "direction",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Sort data by the 'authors' property in ascending order using heap sort algorithm"
+          },
+          "response": []
+        },
+        {
+          "name": "Sort By Property (Rating DESC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/sort-by-property?property=average_rating&direction=DESC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "sort-by-property"
+              ],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "average_rating"
+                },
+                {
+                  "key": "direction",
+                  "value": "DESC"
+                }
+              ]
+            },
+            "description": "Sort data by the 'average_rating' property in descending order using heap sort algorithm"
+          },
+          "response": []
+        },
+        {
+          "name": "Sort By Property (Publication Date ASC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/sort-by-property?property=publication_date&direction=ASC",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "sort-by-property"
+              ],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "publication_date"
+                },
+                {
+                  "key": "direction",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Sort data by the 'publication_date' property in ascending order using heap sort algorithm"
+          },
+          "response": []
+        },
+        {
+          "name": "Heap Sort (Keys)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/heap-sort",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "heap-sort"
+              ]
+            },
+            "description": "Sort all keys using heap sort algorithm"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Sorted Tree",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/data/create-sorted-tree/AVL",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "data",
+                "create-sorted-tree",
+                "AVL"
+              ]
+            },
+            "description": "Create a new AVL tree with data sorted using heap sort algorithm"
           },
           "response": []
         }
