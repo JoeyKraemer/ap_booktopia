@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import SearchBar from "../pages/components/SearchBar";
 import SystemMetrics from "../pages/components/SystemMetrics";
 import SortBy from "../pages/components/SortBy";
@@ -6,33 +6,64 @@ import ItemCard from "../pages/components/ItemCard";
 import ButtonGroup from "../pages/components/ButtonGroup";
 
 export default function Home() {
-    // Example data for items (can be books, movies, songs, etc.)
-    const [items, setItems] = useState([
-        { title: "Item 1", value1: "A", value2: "B", value3: "C", value4: "D", value5: "E" },
-        { title: "Item 2", value1: "F", value2: "G", value3: "H", value4: "I", value5: "J" },
-        { title: "Item 3", value1: "K", value2: "L", value3: "M", value4: "N", value5: "O" },
-    ]);
-
-    // States for search, sort, and metrics
+    let [items, setItems] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [sortedItems, setSortedItems] = useState(items);
+    let [sortedItems, setSortedItems] = useState(items);
     const [lastAlgorithm, setLastAlgorithm] = useState("None");
     const [speed, setSpeed] = useState("-");
+    let [processingTimeMs, setProcessingTimeMs] = useState(0);
+    let [columns, setColumns] = useState([]);
+    let [dataStructure, setDataStructure] = useState("None");
+
+    useEffect(() => {
+        fetch('http://localhost:8080/api/display/table')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched data:", data.data);
+                if (data && data.data) {
+                    setItems(data.data.rows);
+                    setColumns(data.data.columns);
+                    setProcessingTimeMs(data.data.processingTimeMs);
+
+                    handleSortChange('title', 'asc'); // Sort by title, ascending
+                } else {
+                    console.log("No valid array found in the response");
+                    setItems([]);  // Fallback to empty array if the data isn't what we expect
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                setItems([]);  // Fallback to empty array on error
+            });
+    }, []);
+
+    useEffect(() => {
+        fetch('http://localhost:8080/api/tree/current')
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    setDataStructure(data.treeType);
+                } else {
+                    setDataStructure('None');  // Fallback to empty array if the data isn't what we expect
+                }
+            })
+            .catch(error => {
+                setDataStructure('None');  // Fallback to empty array on error
+            });
+    }, []);
+
+    console.log(dataStructure);
 
     // Handle search functionality
     const handleSearch = (query, string) => {
         setSearchQuery(query);
-        const filteredItems = items.filter((item) =>
-            item.title.toLowerCase().includes(query.toLowerCase())
-        );
-        setSortedItems(filteredItems);
     };
 
     // Handle sorting functionality
     const handleSortChange = (criteria: string, order: "asc" | "desc") => {
         const start = performance.now();
 
-        const sorted = [...sortedItems].sort((a, b) => {
+        const sorted = [...items].sort((a, b) => {
             const valueA = a[criteria as keyof typeof a];
             const valueB = b[criteria as keyof typeof b];
 
@@ -83,27 +114,11 @@ export default function Home() {
                     </div>
                     <div className="metrics-box">
                         <SystemMetrics
-                            dataStructure="Array"
+                            dataStructure={dataStructure}
                             lastAlgorithm={lastAlgorithm}
-                            speed={speed}
+                            speed={processingTimeMs}
                         />
                     </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
-                    {sortedItems.map((item) => (
-                        <div className="item-card">
-                        <ItemCard
-                            key={item.title}
-                            title={item.title}
-                            value1={item.value1}
-                            value2={item.value2}
-                            value3={item.value3}
-                            value4={item.value4}
-                            value5={item.value5}
-                        />
-                    </div>
-                    ))}
                 </div>
 
                 <div className="button-group">
@@ -114,6 +129,17 @@ export default function Home() {
                         onConvert={handleConvert}
                         onUpload={handleUpload}
                     />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
+                    {items.map((item, index) => (
+                        <div className="item-card" key={index}>
+                            <ItemCard
+                                title={item.title || `Item ${index + 1}`} // fallback title if title doesn't exist
+                                values={Object.entries(item)} // Pass all key-value pairs
+                            />
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

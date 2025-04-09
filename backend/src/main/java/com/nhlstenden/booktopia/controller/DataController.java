@@ -145,7 +145,7 @@ public class DataController {
         
         try {
             // Path to the sample CSV file
-            String filePath = "src/main/resources/books.csv";
+            String filePath = "src/main/resources/movies.csv";
             
             // Read the CSV file
             BufferedReader reader = new BufferedReader(new FileReader(filePath));

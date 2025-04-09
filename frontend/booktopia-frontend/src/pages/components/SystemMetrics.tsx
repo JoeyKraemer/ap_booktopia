@@ -1,7 +1,7 @@
 type SystemMetricsProps = {
     dataStructure: string;
     lastAlgorithm: string;
-    speed: string;
+    speed: number;
 };
 
 export default function SystemMetrics({
@@ -20,7 +20,7 @@ export default function SystemMetrics({
                     <span className="font-medium">Last Algorithm:</span> {lastAlgorithm}
                 </div>
                 <div>
-                    <span className="font-medium">Execution Speed:</span> {speed}
+                    <span className="font-medium">Execution Speed:</span> {speed} ms
                 </div>
             </div>
         </div>
