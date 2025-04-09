@@ -291,12 +291,16 @@ public class DataService<K extends Comparable<K>, V> {
      * for partial matches in keys and values.
      * 
      * @param query The search query
-     * @return A list of matching data items
+     * @return A map containing search results and metadata
      */
-    public List<Map<String, Object>> searchData(String query) {
+    public Map<String, Object> searchData(String query) {
         long startTime = System.currentTimeMillis();
-        List<Map<String, Object>> result = searchService.searchData(query);
+        Map<String, Object> result = searchService.searchData(query);
         long endTime = System.currentTimeMillis();
+        
+        // Update processing time with the total time including this method
+        result.put("processingTimeMs", endTime - startTime);
+        
         System.out.println("searchData processing time: " + (endTime - startTime) + "ms");
         return result;
     }
