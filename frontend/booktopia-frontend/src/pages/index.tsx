@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import SearchBar from "../pages/components/SearchBar";
 import SystemMetrics from "../pages/components/SystemMetrics";
 import SortBy from "../pages/components/SortBy";
@@ -319,7 +319,12 @@ export default function Home() {
                         </div>
                     </div>
                     <div className="metrics-box">
-                        <SystemMetrics dataStructure={dataStructure} lastAlgorithm={lastAlgorithm} speed={processingTimeMs} />
+                        <SystemMetrics
+                            dataStructure={dataStructure}
+                            lastAlgorithm={lastAlgorithm}
+                            speed={processingTimeMs}
+                            searchMethod={searchMethod}
+                        />
                     </div>
                 </div>
 

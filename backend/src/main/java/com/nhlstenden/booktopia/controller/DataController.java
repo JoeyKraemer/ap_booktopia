@@ -191,15 +191,20 @@ public class DataController {
         
         try {
             // Search for the query
-            List<Map<String, Object>> results = dataService.searchData(query);
+            Map<String, Object> searchResult = dataService.searchData(query);
             
             long endTime = System.currentTimeMillis();
+            
+            // Get the results and search method from the result map
+            List<Map<String, Object>> results = (List<Map<String, Object>>) searchResult.get("results");
+            String searchMethod = (String) searchResult.get("searchMethod");
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("results", results);
-            response.put("found", !results.isEmpty());
-            response.put("processingTimeMs", endTime - startTime);
+            response.put("found", results != null && !results.isEmpty());
+            response.put("searchMethod", searchMethod);
+            response.put("processingTimeMs", searchResult.get("processingTimeMs"));
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {

@@ -24,13 +24,16 @@ public class SearchService<K extends Comparable<K>, V> {
      * and falls back to a more comprehensive search for partial matches in keys and values.
      * 
      * @param query The search query
-     * @return A list of matching data items
+     * @return A map containing the search results and the search method used
      */
-    public List<Map<String, Object>> searchData(String query) {
+    public Map<String, Object> searchData(String query) {
         long startTime = System.currentTimeMillis();
         
         if (query == null || query.trim().isEmpty()) {
-            return Collections.emptyList();
+            Map<String, Object> emptyResult = new HashMap<>();
+            emptyResult.put("results", Collections.emptyList());
+            emptyResult.put("searchMethod", "None");
+            return emptyResult;
         }
         
         // Convert query to lowercase for case-insensitive search
@@ -38,6 +41,9 @@ public class SearchService<K extends Comparable<K>, V> {
         
         // Create a list to hold search results
         List<Map<String, Object>> results = new ArrayList<>();
+        
+        // Track which search method was used
+        String searchMethod = "Linear Search";
         
         // First, try an exact key search using the tree's native search algorithm
         try {
@@ -60,6 +66,7 @@ public class SearchService<K extends Comparable<K>, V> {
                 
                 results.add(result);
                 System.out.println("Found exact match using tree-specific search for key: " + query);
+                searchMethod = "Exact Key Search";
                 
                 // If we found an exact match, we could return early,
                 // but we'll continue to search for partial matches as well
@@ -132,12 +139,12 @@ public class SearchService<K extends Comparable<K>, V> {
         long endTime = System.currentTimeMillis();
         System.out.println("searchData processing time: " + (endTime - startTime) + "ms");
         
-        // Add processing time to the response
-        Map<String, Object> metadataResult = new HashMap<>();
-        metadataResult.put("processingTimeMs", endTime - startTime);
-        metadataResult.put("isMetadata", true);
-        results.add(metadataResult);
+        // Return both the results and the search method used
+        Map<String, Object> resultMap = new HashMap<>();
+        resultMap.put("results", results);
+        resultMap.put("searchMethod", searchMethod);
+        resultMap.put("processingTimeMs", endTime - startTime);
         
-        return results;
+        return resultMap;
     }
 }
