@@ -50,7 +50,9 @@ Each tree implementation handles operations such as insertion, deletion, and sea
 
 ### Prerequisites
 - Java 11 or higher
-- Node.js and npm (for frontend development)
+- Node.js 16.x or higher (required for frontend)
+  - On macOS: Install via Homebrew (`brew install node`) or download from [nodejs.org](https://nodejs.org/)
+  - Verify installation with `node -v` and `npm -v`
 - Gradle
 
 ### Backend Setup

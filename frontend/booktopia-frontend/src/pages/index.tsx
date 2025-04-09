@@ -135,7 +135,7 @@ export default function Home() {
                     {items.map((item, index) => (
                         <div className="item-card" key={index}>
                             <ItemCard
-                                title={item.title || `Item ${index + 1}`} // fallback title if title doesn't exist
+                                title={item.title || item.name || `Item ${index + 1}`} // check for both title and name fields
                                 values={Object.entries(item)} // Pass all key-value pairs
                             />
                         </div>
