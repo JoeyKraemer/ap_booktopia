@@ -1,0 +1,144 @@
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Baloo&display=swap');
+
+/* Global Styles */
+body {
+    font-family: 'Baloo', cursive;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    font-size: 15px;
+}
+
+h1, h2, h3 {
+    font-family: 'Baloo', cursive;
+}
+
+.container{
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.bix-box {
+    grid-column: 1/7;
+    display: flex;
+    flex-direction: column;
+}
+
+.top {
+    grid-column: 1/7;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.search-top{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Search Bar */
+.search-bar {
+    width: 100%;
+    margin-left: 25px;
+    margin-top: 25px;
+}
+
+input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #000000;
+}
+
+/* System Metrics */
+.metrics-box {
+    grid-column: 4/6;
+    margin: 25px;
+    background-color: #CEDFF3;
+    border: 2px solid #08264A;
+    border-radius: 8px;
+    width: 100%;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+.metrics-box h3 {
+    font-size: 30px;
+}
+
+.metrics-box p {
+    font-size: 15px;
+}
+
+/* Sort By Dropdowns */
+.sort-by {
+    grid-column: 1/3;
+    margin-bottom: 25px;
+    margin-left: 25px;
+}
+
+.sort-by h3 {
+    margin-top: 0px;
+}
+
+select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #EBA6CB;
+    margin-right: 10px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #4A082B;
+}
+
+/* Item Cards */
+.item-card {
+    grid-column: 2/5;
+
+    background-color: #F4E7EE;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 20px 20px 40px;
+    padding-left: 25px;
+    padding-bottom: 10px;
+    width: 90%;
+}
+
+.item-card h3 {
+    font-size: 30px;
+    margin-bottom: 5px;
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-right: 20px;
+    margin-bottom: 25px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #EBA6CB;
+    margin: 10px;
+}
+
+button:hover {
+    opacity: 0.9;
+}

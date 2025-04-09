@@ -23,9 +23,57 @@
 hs_err_pid*
 replay_pid*
 
-.idea
+# IDE and editor files
+.idea/
 .DS_Store
 
+# Application properties
 /src/main/resources/application.properties
+
+# Build directories
+backend/build/
+backend/.gradle/
+backend/gradle/
+
+# Ignore files based on https://help.github.com/articles/ignoring-files/
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
 /build/
-/.gradle/
+
+# Miscellaneous
+*.pem
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment files
+.env*
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+/frontend/booktopia-frontend/.next/
+/frontend/booktopia-frontend/node_modules/

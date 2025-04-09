@@ -1,0 +1,418 @@
+{
+  "info": {
+    "name": "Booktopia API",
+    "description": "Collection for testing the Booktopia backend API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "Base URL for the Booktopia API"
+    },
+    {
+      "key": "treeType",
+      "value": "AVL",
+      "type": "string",
+      "description": "Tree type (AVL, BST, or BTREE)"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Tree Operations",
+      "item": [
+        {
+          "name": "Get Current Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tree/current",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tree", "current"]
+            },
+            "description": "Get the current tree type, keys, and values"
+          },
+          "response": []
+        },
+        {
+          "name": "Convert to Tree Type",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tree/convert?targetTree={{treeType}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tree", "convert"],
+              "query": [
+                {
+                  "key": "targetTree",
+                  "value": "{{treeType}}"
+                }
+              ]
+            },
+            "description": "Convert the current tree to the specified tree type (AVL, BST, BTREE)"
+          },
+          "response": []
+        },
+        {
+          "name": "Insert Into Tree",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"key\": \"Test Book\",\n    \"value\": {\n        \"author\": \"Test Author\",\n        \"rating\": \"3.5\",\n        \"isbn\": \"1234567890\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tree/insert",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tree", "insert"]
+            },
+            "description": "Insert a key-value pair into the current tree"
+          },
+          "response": []
+        }
+      ],
+      "description": "Operations related to tree conversion and management"
+    },
+    {
+      "name": "2. Data Operations",
+      "item": [
+        {
+          "name": "Add Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"key\": \"The Great Gatsby\",\n    \"value\": {\n        \"author\": \"F. Scott Fitzgerald\",\n        \"rating\": \"4.2\",\n        \"isbn\": \"9780743273565\",\n        \"year\": \"1925\",\n        \"publisher\": \"Scribner\"\n    }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/data/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data", "add"]
+            },
+            "description": "Add a new key-value pair to the current data structure"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/data/search?query=harry",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "harry"
+                }
+              ]
+            },
+            "description": "Search for data in the current tree structure using tree-specific algorithms. Returns all matches in the given tree."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Data",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/data/delete/The Great Gatsby",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data", "delete", "The Great Gatsby"]
+            },
+            "description": "Delete a key-value pair from the current data structure"
+          },
+          "response": []
+        },
+        {
+          "name": "Import CSV",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/books.csv"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/data/import-csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data", "import-csv"]
+            },
+            "description": "Import data from a CSV file"
+          },
+          "response": []
+        },
+        {
+          "name": "Import CSV Test",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/data/import-csv-test",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data", "import-csv-test"]
+            },
+            "description": "Test endpoint for importing data from a sample CSV file"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Data Sorted by Property",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/data/sort?property=author",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "data", "sort"],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "author"
+                }
+              ]
+            },
+            "description": "Get all data sorted by a specific property"
+          },
+          "response": []
+        }
+      ],
+      "description": "Operations related to data management (add, delete, search, import)"
+    },
+    {
+      "name": "3. Display Operations",
+      "item": [
+        {
+          "name": "Get Table Data (Default Sort)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/display/table",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "display", "table"]
+            },
+            "description": "Get data formatted for display in a table (default sort)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Table Data (Custom Sort)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/display/table?sortBy=author&sortDirection=ASC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "display", "table"],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "author"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Get data formatted for display in a table with custom sorting"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Data Card Display (Default Sort)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/display/cards",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "display", "cards"]
+            },
+            "description": "Get data formatted for display in data cards (default sort)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Data Card Display (Custom Sort)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/display/cards?sortBy=rating&sortDirection=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "display", "cards"],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "rating"
+                },
+                {
+                  "key": "sortDirection",
+                  "value": "DESC"
+                }
+              ]
+            },
+            "description": "Get data formatted for display in data cards with custom sorting"
+          },
+          "response": []
+        }
+      ],
+      "description": "Operations related to displaying data in different formats"
+    },
+    {
+      "name": "4. Sorting Operations",
+      "item": [
+        {
+          "name": "Get Sortable Properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sorting/sortable-properties",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sorting", "sortable-properties"]
+            },
+            "description": "Get a list of all properties that can be used for sorting the data"
+          },
+          "response": []
+        },
+        {
+          "name": "Sort By Property",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sorting/sort-by-property?property=author&direction=ASC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sorting", "sort-by-property"],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "author"
+                },
+                {
+                  "key": "direction",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Sort data by a specific property using heap sort algorithm"
+          },
+          "response": []
+        },
+        {
+          "name": "Heap Sort",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sorting/heapsort",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sorting", "heapsort"]
+            },
+            "description": "Get all keys from the current tree, sorted using heap sort algorithm"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Sorted Tree",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sorting/heapsort/tree/{{treeType}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sorting", "heapsort", "tree", "{{treeType}}"]
+            },
+            "description": "Creates a new tree of the specified type with data sorted using heap sort"
+          },
+          "response": []
+        }
+      ],
+      "description": "Operations related to sorting data using different algorithms"
+    },
+    {
+      "name": "5. Merge Sort Operations",
+      "item": [
+        {
+          "name": "MergeSort - Sort Keys",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mergeSort/keys",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mergeSort", "keys"]
+            },
+            "description": "Get all keys sorted using merge sort"
+          },
+          "response": []
+        },
+        {
+          "name": "MergeSort - Sort Keys With Values",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mergeSort/keysWithValues",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mergeSort", "keysWithValues"]
+            },
+            "description": "Get all key-value pairs sorted by key using merge sort"
+          },
+          "response": []
+        },
+        {
+          "name": "MergeSort - Sort By Property",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/mergeSort/sortByProperty?property=author&direction=ASC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "mergeSort", "sortByProperty"],
+              "query": [
+                {
+                  "key": "property",
+                  "value": "author"
+                },
+                {
+                  "key": "direction",
+                  "value": "ASC"
+                }
+              ]
+            },
+            "description": "Sort data by a specified property using merge sort algorithm"
+          },
+          "response": []
+        }
+      ]
+    }    
+  ]
+}
