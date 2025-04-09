@@ -4,6 +4,9 @@ import SystemMetrics from "../pages/components/SystemMetrics";
 import SortBy from "../pages/components/SortBy";
 import ItemCard from "../pages/components/ItemCard";
 import ButtonGroup from "../pages/components/ButtonGroup";
+import AddItemModal from "../pages/components/AddItemModal";
+import DeleteConfirmationModal from '../pages/components/DeleteConfirmationModal';
+
 
 export default function Home() {
     let [items, setItems] = useState([]);
@@ -14,6 +17,8 @@ export default function Home() {
     let [processingTimeMs, setProcessingTimeMs] = useState(0);
     let [columns, setColumns] = useState([]);
     let [dataStructure, setDataStructure] = useState("None");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         fetch('http://localhost:8080/api/display/table')
@@ -78,13 +83,59 @@ export default function Home() {
         setSpeed(`${(end - start).toFixed(2)}ms`);
     };
 
+    // Function to handle adding new item
+    const handleAddItem = (newItem: any) => {
+        fetch('http://localhost:8080/api/data/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newItem),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Item added:", data);
+                setItems((prevItems) => [...prevItems, newItem]); // Update items with new item
+            })
+            .catch((error) => console.error("Error adding item:", error));
+    };
+
+    const handleDeleteConfirm = (key: string) => {
+        // Send the delete request to the server
+        fetch(`http://localhost:8080/api/data/delete/${key}`, {
+            method: 'DELETE',
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // After successful deletion, remove the item from the items array
+                    setItems((prevItems) => prevItems.filter(item => item.key !== key));  // Replace "key" with the correct field
+                } else {
+                    alert('Error deleting item');
+                }
+            })
+            .catch((error) => {
+                console.error("Error deleting item:", error);
+            });
+    };
+
     // Handle button actions
     const handleAdd = () => {
         console.log("Add Item clicked");
+        setIsModalOpen(true);
+
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
     };
 
     const handleDelete = () => {
-        console.log("Delete Item clicked");
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleCloseDeleteModal = () => {
+        setIsDeleteModalOpen(false); // Close the modal without deleting
     };
 
     const handleEdit = () => {
@@ -130,6 +181,22 @@ export default function Home() {
                         onUpload={handleUpload}
                     />
                 </div>
+
+                {isModalOpen && (
+                    <AddItemModal
+                        columns={columns}
+                        onClose={handleCloseModal}
+                        onSubmit={handleAddItem}
+                    />
+                )}
+
+                {isDeleteModalOpen && (
+                    <DeleteConfirmationModal
+                        items={items}  // Pass the items array to the modal
+                        onClose={() => setIsDeleteModalOpen(false)}
+                        onDelete={handleDeleteConfirm}
+                    />
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
                     {items.map((item, index) => (
