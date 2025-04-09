@@ -17,6 +17,8 @@ export default function Home() {
     let [processingTimeMs, setProcessingTimeMs] = useState(0);
     let [columns, setColumns] = useState([]);
     let [dataStructure, setDataStructure] = useState("None");
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchMethod, setSearchMethod] = useState("None");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -60,8 +62,50 @@ export default function Home() {
     console.log(dataStructure);
 
     // Handle search functionality
-    const handleSearch = (query, string) => {
+    const handleSearch = (query) => {
+        if (!query.trim()) {
+            // If search query is empty, reset to original data
+            fetch('http://localhost:8080/api/display/table')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.data) {
+                        setItems(data.data.rows);
+                        setSortedItems(data.data.rows);
+                        setProcessingTimeMs(data.data.processingTimeMs);
+                        setLastAlgorithm("None");
+                        setSearchMethod("None");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                });
+            return;
+        }
+
+        setIsSearching(true);
         setSearchQuery(query);
+        
+        // Call the backend search endpoint
+        fetch(`http://localhost:8080/api/data/search?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.success) {
+                    const results = data.results;
+                    setItems(results);
+                    setSortedItems(results); // Also update sortedItems
+                    setProcessingTimeMs(data.processingTimeMs);
+                    setLastAlgorithm("Search");
+                    setSearchMethod(data.searchMethod || "Unknown");
+                } else {
+                    console.error("Search failed:", data.error);
+                    // Keep the current items if search fails
+                }
+                setIsSearching(false);
+            })
+            .catch(error => {
+                console.error("Error during search:", error);
+                setIsSearching(false);
+            });
     };
 
     // Handle sorting functionality
@@ -168,6 +212,7 @@ export default function Home() {
                             dataStructure={dataStructure}
                             lastAlgorithm={lastAlgorithm}
                             speed={processingTimeMs}
+                            searchMethod={searchMethod}
                         />
                     </div>
                 </div>
@@ -199,10 +244,10 @@ export default function Home() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
-                    {items.map((item, index) => (
+                    {sortedItems.map((item, index) => (
                         <div className="item-card" key={index}>
                             <ItemCard
-                                title={item.title || `Item ${index + 1}`} // fallback title if title doesn't exist
+                                title={item.title || item.name || `Item ${index + 1}`} // check for both title and name fields
                                 values={Object.entries(item)} // Pass all key-value pairs
                             />
                         </div>

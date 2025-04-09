@@ -50,7 +50,9 @@ Each tree implementation handles operations such as insertion, deletion, and sea
 
 ### Prerequisites
 - Java 11 or higher
-- Node.js and npm (for frontend development)
+- Node.js 16.x or higher (required for frontend)
+  - On macOS: Install via Homebrew (`brew install node`) or download from [nodejs.org](https://nodejs.org/)
+  - Verify installation with `node -v` and `npm -v`
 - Gradle
 
 ### Backend Setup
@@ -110,7 +112,9 @@ The frontend development server will start on http://localhost:3000
    - The UI will display a success message with the number of records imported and processing time
 
 4. **Performance Note**:
-   - **File Size Limitation**: For optimal frontend performance, limit CSV files to 500 lines or fewer
+   - **File Size Limitation**: 
+     - CSV files cannot exceed 50MB in size
+     - For optimal frontend performance, limit CSV files to 500 lines or fewer
    - While the backend tree structures can handle larger datasets efficiently, the frontend is not optimized for very large datasets
    - You can test larger datasets using Postman and the backend API directly
    - With large datasets, frontend operations like initial loading and sorting will be noticeably slower, but the application will still function correctly
