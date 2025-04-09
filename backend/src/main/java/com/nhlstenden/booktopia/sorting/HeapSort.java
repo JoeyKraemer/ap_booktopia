@@ -1,8 +1,6 @@
 package com.nhlstenden.booktopia.sorting;
 
-import com.nhlstenden.booktopia.AVL.AVLTree;
-import com.nhlstenden.booktopia.BST.BinarySearchTree;
-import com.nhlstenden.booktopia.btree.BTree;
+import com.nhlstenden.booktopia.services.TreeConverterService;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -246,6 +244,77 @@ public class HeapSort<K extends Comparable<K>, V> {
             // Recursively heapify the affected sub-tree
             heapifyPairs(pairs, n, largest);
         }
+    }
+    
+    /**
+     * Sorts data by a specific property using heap sort algorithm.
+     * 
+     * @param property The property to sort by
+     * @param ascending True for ascending order, false for descending
+     * @return A list of data items sorted by the specified property
+     */
+    public List<Map<String, Object>> sortByProperty(String property, boolean ascending) {
+        long startTime = System.currentTimeMillis();
+        
+        // Get all keys and values
+        List<K> keys = treeConverterService.getAllKeys();
+        List<V> values = treeConverterService.getAllValues();
+        
+        // Create a list to hold all data items
+        List<Map<String, Object>> dataItems = new ArrayList<>();
+        
+        // Combine keys and values into data items
+        for (int i = 0; i < keys.size(); i++) {
+            K key = keys.get(i);
+            V value = i < values.size() ? values.get(i) : null;
+            
+            // If value is null, try to get it using search
+            if (value == null) {
+                value = treeConverterService.search(key);
+            }
+            
+            if (value != null) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("key", key);
+                
+                // Add all properties from the value
+                if (value instanceof JSONObject) {
+                    JSONObject jsonObj = (JSONObject) value;
+                    for (String propName : jsonObj.keySet()) {
+                        item.put(propName, jsonObj.get(propName));
+                    }
+                }
+                
+                dataItems.add(item);
+            }
+        }
+        
+        // Sort the data items by the specified property
+        Collections.sort(dataItems, new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> item1, Map<String, Object> item2) {
+                Object val1 = property.equals("key") ? item1.get("key") : item1.get(property);
+                Object val2 = property.equals("key") ? item2.get("key") : item2.get(property);
+                
+                // Handle null values
+                if (val1 == null && val2 == null) {
+                    return 0;
+                } else if (val1 == null) {
+                    return ascending ? -1 : 1;
+                } else if (val2 == null) {
+                    return ascending ? 1 : -1;
+                }
+                
+                // Compare as strings
+                int result = val1.toString().compareTo(val2.toString());
+                return ascending ? result : -result;
+            }
+        });
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Heap sort by property completed in " + (endTime - startTime) + " ms");
+        
+        return dataItems;
     }
     
     /**

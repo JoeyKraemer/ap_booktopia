@@ -284,7 +284,7 @@ public class HomeController {
         
         try {
             // Path to the sample CSV file
-            String filePath = "src/main/resources/sample-data.csv";
+            String filePath = "src/main/resources/books.csv";
             
             // Read the CSV file
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
@@ -329,14 +329,14 @@ public class HomeController {
         
         try {
             // Search for the query
-            JSONObject result = dataService.search(query);
+            List<Map<String, Object>> results = dataService.searchData(query);
             
             long endTime = System.currentTimeMillis();
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("result", result != null ? result.toMap() : null);
-            response.put("found", result != null);
+            response.put("results", results);
+            response.put("found", !results.isEmpty());
             response.put("processingTimeMs", endTime - startTime);
             
             return ResponseEntity.ok(response);
