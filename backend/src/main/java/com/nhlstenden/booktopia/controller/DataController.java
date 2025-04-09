@@ -1,6 +1,7 @@
 package com.nhlstenden.booktopia.controller;
 
 import com.nhlstenden.booktopia.services.DataService;
+import com.nhlstenden.booktopia.services.TreeService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ public class DataController {
 
     @Autowired
     private DataService dataService;
+    @Autowired
+    private TreeService treeService;
 
     /**
      * Adds a new data item to the current tree.
@@ -107,6 +110,8 @@ public class DataController {
         long startTime = System.currentTimeMillis();
         
         try {
+            treeService.clear();
+
             // Read the CSV file
             BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
             
