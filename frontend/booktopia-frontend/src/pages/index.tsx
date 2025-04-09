@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import SearchBar from "../pages/components/SearchBar";
 import SystemMetrics from "../pages/components/SystemMetrics";
+import SortBy from "../pages/components/SortBy";
 import ItemCard from "../pages/components/ItemCard";
 import ButtonGroup from "../pages/components/ButtonGroup";
+import AddItemModal from "../pages/components/AddItemModal";
+import DeleteConfirmationModal from '../pages/components/DeleteConfirmationModal';
 import { ConversionModal } from "./components/ConversionModal";
 import { UploadModal } from "./components/UploadModal";
-import { useTreeData } from "../hooks/useTreeData";
-import SortBy from "../pages/components/SortBy";
+
 
 export default function Home() {
     const [items, setItems] = useState<any[]>([]);
@@ -62,33 +64,6 @@ export default function Home() {
                 setDataStructure('None');  // Fallback to empty array on error
             });
     }, []);
-
-    const refreshDataset = () => {
-        fetch(`http://localhost:8080/api/display/table?ts=${Date.now()}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log("New fetched data:", data.data);
-                if (data && data.data) {
-                    setItems(data.data.rows);
-                    setColumns(data.data.columns);
-                    setProcessingTimeMs(data.data.processingTimeMs);
-                    // Reset sortedItems or apply a default sort if needed:
-                    setSortedItems(data.data.rows);
-                } else {
-                    setItems([]);
-                    setColumns([]);
-                    setProcessingTimeMs(0);
-                    setSortedItems([]);
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching new data:", error);
-                setItems([]);
-                setColumns([]);
-                setProcessingTimeMs(0);
-                setSortedItems([]);
-            });
-    };
 
     // Handle search functionality
     const handleSearch = (query) => {
@@ -301,6 +276,33 @@ export default function Home() {
                     alert("Error during merge sort: " + error.message);
                 });
         }
+    };
+
+    const refreshDataset = () => {
+        fetch(`http://localhost:8080/api/display/table?ts=${Date.now()}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("New fetched data:", data.data);
+                if (data && data.data) {
+                    setItems(data.data.rows);
+                    setColumns(data.data.columns);
+                    setProcessingTimeMs(data.data.processingTimeMs);
+                    // Reset sortedItems or apply a default sort if needed:
+                    setSortedItems(data.data.rows);
+                } else {
+                    setItems([]);
+                    setColumns([]);
+                    setProcessingTimeMs(0);
+                    setSortedItems([]);
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching new data:", error);
+                setItems([]);
+                setColumns([]);
+                setProcessingTimeMs(0);
+                setSortedItems([]);
+            });
     };
 
     return (
